@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-ARG VITE_API_BASE_URL=https://api.visionacademii.ir
+ARG VITE_API_BASE_URL=https://visionacademii.ir
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build
 
