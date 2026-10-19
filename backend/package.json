@@ -1,0 +1,35 @@
+{
+  "name": "vision-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js",
+    "dev": "nodemon server.js",
+    "set-admin-password": "node scripts/setAdminPassword.js",
+    "fix-duplicate-indexes": "node scripts/fixDuplicateIndexes.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "ioredis": "^6.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "moment-jalaali": "^0.10.5",
+    "multer": "^2.0.1",
+    "mysql2": "^3.23.2",
+    "node-cron": "^4.6.0",
+    "sequelize": "^6.37.8",
+    "socket.io": "^4.8.1",
+    "yup": "^1.7.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
