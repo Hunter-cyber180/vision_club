@@ -41,7 +41,7 @@ const uploadRoutes = require("./routes/upload");
 const app = express();
 
 app.use(cors({
-    origin: "https://api.visionacademii.ir",
+    origin: "https://visionacademii.ir",
     credentials: true,
 }));
 app.use(cookieParser());

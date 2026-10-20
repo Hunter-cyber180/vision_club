@@ -20,7 +20,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "https://api.visionacademii.ir",
+        origin: "https://visionacademii.ir",
         credentials: true,
     },
 });
