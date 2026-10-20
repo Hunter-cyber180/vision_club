@@ -55,8 +55,8 @@ async function start() {
 
         await seedInitialAdmin();
 
-        server.listen(configs.port, () => {
-            console.log(`🚀 Server running on http://localhost:${configs.port}`);
+        server.listen(configs.port, "0.0.0.0", () => {
+            console.log(`🚀 Server running on http://api.visionacademii.ir:${configs.port}`);
         });
     } catch (error) {
         console.error("❌ Unable to start server:", error);
