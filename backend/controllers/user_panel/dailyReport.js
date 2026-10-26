@@ -1,5 +1,7 @@
 const { DailyReport, DailyReportLesson, MissedDailyReport } = require("../../models");
 const { Op } = require("sequelize");
+const { attachFeedbacks } = require("../../utils/feedbacks");
+const { ReportFeedback } = require("../../models");
 
 const VALID_ACTIVITY_TYPES = ["review_cycle", "practice_review", "new_topic", "not_done"];
 
@@ -95,7 +97,7 @@ exports.getMine = async (request, response) => {
         order: [["report_date", "DESC"]]
       });
 
-      return response.status(200).json({ success: true, data: reports });
+      return response.status(200).json({ success: true, data: await attachFeedbacks(reports, "daily_report") });
     } catch (error) {
       return response.status(500).json({
         success: false,
@@ -262,6 +264,7 @@ exports.delete = async (request, response) => {
       //   });
       // }
 
+      await ReportFeedback.destroy({ where: { target_type: "daily_report", target_id: report.id } });
       await report.destroy();
 
       return response.status(200).json({

@@ -1,4 +1,5 @@
 const moment = require("moment-jalaali");
+const { attachFeedbacks } = require("../../utils/feedbacks");
 const {
     User: UserModel,
     Consultant: ConsultantModel,
@@ -234,7 +235,7 @@ exports.getUserDailyReports = async (request, response) => {
 
         return response.status(200).json({
             success: true,
-            data: dailyReorts
+            data: await attachFeedbacks(dailyReorts, "daily_report")
         });
     } catch(error) {
         return response.status(500).json({
@@ -263,7 +264,7 @@ exports.getUserAnalysisExams = async (request, response) => {
 
         return response.status(200).json({
             success: true,
-            data: analysisExams
+            data: await attachFeedbacks(analysisExams, "analysis_exam")
         });
     } catch(error) {
         return response.status(500).json({

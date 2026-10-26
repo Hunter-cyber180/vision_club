@@ -1,3 +1,4 @@
+const { attachFeedbacks } = require("../../utils/feedbacks");
 const { AnalysisExam, AnalysisExamLesson, MissedAnalysisExam, ExamSchedule, User, Op } = require("../../models");
 
 // دانش‌آموز فرم تحلیل آزمون رو ثبت می‌کنه (همراه با ریز نمرات دروس - اختیاری)
@@ -83,7 +84,7 @@ exports.getMine = async (request, response) => {
             order: [["test_date", "DESC"]]
         });
 
-        return response.status(200).json({ success: true, data: analysisExams });
+        return response.status(200).json({ success: true, data: await attachFeedbacks(analysisExams, "analysis_exam") });
     } catch (error) {
         return response.status(500).json({
             success: false,

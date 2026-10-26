@@ -30,6 +30,8 @@ const AnalysisExamLesson = require("./analysisExamLesson");
 const ExamSchedule = require("./examSchedule");
 const MissedAnalysisExam = require("./missedAnalysisExam");
 
+const ReportFeedback = require("./reportFeedback");
+
 const TuitionPayment = require("./tuitionPayment");
 const WeeklySchedule = require("./weeklySchedule");
 
@@ -51,6 +53,7 @@ const models = {
     Booklet, BookletImage,
     DailyReport, DailyReportLesson, MissedDailyReport,
     AnalysisExam, AnalysisExamLesson, ExamSchedule, MissedAnalysisExam,
+    ReportFeedback,
     TuitionPayment, WeeklySchedule,
     Charge, Checkout,
     UserCourses, UserWorkshops, CartItem,

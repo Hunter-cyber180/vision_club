@@ -36,12 +36,13 @@ const pannelRoutes = require("./routes/pannel");
 const checkoutRoutes = require("./routes/checkout");
 const chatRoutes = require("./routes/chat");
 const supportRoutes = require("./routes/support");
+const feedbackRoutes = require("./routes/feedback");
 const uploadRoutes = require("./routes/upload");
 
 const app = express();
 
 app.use(cors({
-    origin: "https://visionacademii.ir",
+    origin: configs.domain || true,
     credentials: true,
 }));
 app.use(cookieParser());
@@ -92,6 +93,9 @@ app.use("/checkout", checkoutRoutes);
 // --- چت و پشتیبانی ---
 app.use("/chat", chatRoutes);
 app.use("/support", supportRoutes);
+
+// --- بازخورد مشاور/ادمین روی گزارش کار و تحلیل آزمون ---
+app.use("/feedbacks", feedbackRoutes);
 
 // --- آپلود فایل (عکس/ویدیو/pdf/zip و...) — فایل‌های ذخیره‌شده از همون
 // express.static بالا و مستقیم زیر مسیر /uploads/<دسته>/<نام‌فایل> در دسترسن ---
