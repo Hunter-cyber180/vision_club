@@ -2,19 +2,21 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Icon from "../../components/Icon";
 import Modal from "../../components/Modal";
-import Pagination from "../../components/Pagination";
 import AddStudentBox from "../../components/panel/AddStudentBox";
 import { fetchMyStudents, fetchUnpaidTuitions, removeStudent } from "../../api/consultant";
 import { startChatWithStudent } from "../../api/chat";
 import { useToast } from "../../context/ToastContext";
+import useInfiniteList from "../../hooks/useInfiniteList";
+import { toFa } from "../../utils/toFa";
 
 const FILTERS = [
   { key: "all", label: "همه" },
   { key: "noreport", label: "بدون گزارش" },
+  { key: "withreport", label: "با گزارش" },
   { key: "noanalysis", label: "بدون تحلیل" },
+  { key: "withanalysis", label: "با تحلیل" },
   { key: "unpaid", label: "پرداخت‌نشده" },
 ];
-const PER_PAGE = 4;
 
 export default function Students() {
   const navigate = useNavigate();
@@ -24,7 +26,6 @@ export default function Students() {
   const [unpaidIds, setUnpaidIds] = useState(new Set());
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [page, setPage] = useState(1);
   const [startingChatId, setStartingChatId] = useState(null);
   const [removeTarget, setRemoveTarget] = useState(null);
   const [removing, setRemoving] = useState(false);
@@ -75,12 +76,13 @@ export default function Students() {
     const fullName = `${s.name} ${s.lastname}`;
     if (search && !fullName.includes(search)) return false;
     if (filter === "noreport") return !s.reported_today;
+    if (filter === "withreport") return !!s.reported_today;
     if (filter === "noanalysis") return s.analyzed_latest_exam === false;
+    if (filter === "withanalysis") return s.analyzed_latest_exam === true;
     if (filter === "unpaid") return unpaidIds.has(s.id);
     return true;
   });
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const pageItems = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const { visible, hasMore, sentinelRef } = useInfiniteList(filtered, 20, [search, filter]);
 
   return (
     <>
@@ -89,11 +91,11 @@ export default function Students() {
         <AddStudentBox onAdded={load} />
         <div className="glass search-box fade-in" style={{ margin: "0 0 12px" }}>
           <Icon name="search" />
-          <input value={search} placeholder="جستجوی نام دانش‌آموز..." onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+          <input value={search} placeholder="جستجوی نام دانش‌آموز..." onChange={(e) => { setSearch(e.target.value); }} />
         </div>
         <div className="quick-chip-row" style={{ padding: "0 0 6px" }}>
           {FILTERS.map((f) => (
-            <button key={f.key} className={`qchip ${filter === f.key ? "active" : ""}`} onClick={() => { setFilter(f.key); setPage(1); }}>{f.label}</button>
+            <button key={f.key} className={`qchip ${filter === f.key ? "active" : ""}`} onClick={() => { setFilter(f.key); }}>{f.label}</button>
           ))}
         </div>
 
@@ -101,8 +103,8 @@ export default function Students() {
         {!loading && error && <div className="empty-state">{error}</div>}
         {!loading && !error && (
           <>
-            <div className="result-bar">{filtered.length} دانش‌آموز پیدا شد</div>
-            {pageItems.length ? pageItems.map((s) => (
+            <div className="result-bar">{toFa(filtered.length)} دانش‌آموز پیدا شد</div>
+            {visible.length ? visible.map((s) => (
               <div key={s.id} className="glass stu-card pp-card fade-in" onClick={() => navigate(`/panel/students/${s.id}`)}>
                 <div className="avatar">{s.name?.[0]}</div>
                 <div className="pp-info">
@@ -130,7 +132,7 @@ export default function Students() {
                 <Icon name="chev" className="pp-chev" />
               </div>
             )) : <div className="empty-state">دانش‌آموزی با این فیلتر پیدا نشد.</div>}
-            <Pagination page={page} totalPages={totalPages} totalItems={filtered.length} itemWord="دانش‌آموز" onChange={setPage} />
+            {hasMore && <div ref={sentinelRef} className="scroll-sentinel">در حال بارگذاری...</div>}
           </>
         )}
       </div>

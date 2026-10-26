@@ -2,20 +2,21 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Icon from "../../components/Icon";
 import Modal from "../../components/Modal";
-import Pagination from "../../components/Pagination";
 import { useToast } from "../../context/ToastContext";
 import { fetchAllPeople, fetchUnpaidStudents, deleteAdminUser } from "../../api/admin";
 import { startConversationAsAdmin } from "../../api/chat";
 import { toFa } from "../../utils/toFa";
+import useInfiniteList from "../../hooks/useInfiniteList";
 
 const FILTERS = [
   { key: "all", label: "همه" },
   { key: "noreport", label: "بدون گزارش" },
+  { key: "withreport", label: "با گزارش" },
   { key: "noanalysis", label: "بدون تحلیل" },
+  { key: "withanalysis", label: "با تحلیل" },
   { key: "unpaid", label: "پرداخت‌نشده" },
   { key: "newusers", label: "کاربران عادی" },
 ];
-const PER_PAGE = 4;
 
 export default function AdminStudents() {
   const navigate = useNavigate();
@@ -26,7 +27,6 @@ export default function AdminStudents() {
   const [unpaidIds, setUnpaidIds] = useState(new Set());
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [page, setPage] = useState(1);
 
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [startingChatId, setStartingChatId] = useState(null);
@@ -50,13 +50,14 @@ export default function AdminStudents() {
     const fullName = `${s.name} ${s.lastname}`;
     if (search && !fullName.includes(search)) return false;
     if (filter === "noreport") return s.role === "student" && !s.reported_today;
+    if (filter === "withreport") return s.role === "student" && !!s.reported_today;
     if (filter === "noanalysis") return s.role === "student" && s.analyzed_latest_exam === false;
+    if (filter === "withanalysis") return s.role === "student" && s.analyzed_latest_exam === true;
     if (filter === "unpaid") return unpaidIds.has(s.id);
     if (filter === "newusers") return s.role === "user";
     return true;
   });
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const pageItems = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const { visible, hasMore, sentinelRef } = useInfiniteList(filtered, 20, [search, filter]);
 
   const handleChat = async (e, personId) => {
     e.stopPropagation();
@@ -89,11 +90,11 @@ export default function AdminStudents() {
       <div className="wrap panel-wrap" style={{ paddingBottom: 48 }}>
         <div className="glass search-box fade-in" style={{ margin: "0 0 12px" }}>
           <Icon name="search" />
-          <input value={search} placeholder="جستجوی نام کاربر..." onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+          <input value={search} placeholder="جستجوی نام کاربر..." onChange={(e) => { setSearch(e.target.value); }} />
         </div>
         <div className="quick-chip-row" style={{ padding: "0 0 6px" }}>
           {FILTERS.map((f) => (
-            <button key={f.key} className={`qchip ${filter === f.key ? "active" : ""} ${f.key === "newusers" ? "chip-accent" : ""}`} onClick={() => { setFilter(f.key); setPage(1); }}>
+            <button key={f.key} className={`qchip ${filter === f.key ? "active" : ""} ${f.key === "newusers" ? "chip-accent" : ""}`} onClick={() => { setFilter(f.key); }}>
               {f.label}{f.key === "newusers" && <span className="chip-count">{toFa(newUsersCount)}</span>}
             </button>
           ))}
@@ -104,7 +105,7 @@ export default function AdminStudents() {
         {!loading && !error && (
           <>
             <div className="result-bar">{toFa(filtered.length)} کاربر پیدا شد</div>
-            {pageItems.length ? pageItems.map((s) => (
+            {visible.length ? visible.map((s) => (
               <div
                 key={s.id}
                 className="glass stu-card pp-card fade-in"
@@ -131,7 +132,7 @@ export default function AdminStudents() {
                 <Icon name="chev" className="pp-chev" />
               </div>
             )) : <div className="empty-state">کاربری با این فیلتر پیدا نشد.</div>}
-            <Pagination page={page} totalPages={totalPages} totalItems={filtered.length} itemWord="کاربر" onChange={setPage} />
+            {hasMore && <div ref={sentinelRef} className="scroll-sentinel">در حال بارگذاری...</div>}
           </>
         )}
       </div>
