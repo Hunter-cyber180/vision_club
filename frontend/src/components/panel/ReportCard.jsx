@@ -1,11 +1,14 @@
 import { useState } from "react";
 import Icon from "../Icon";
+import FeedbackSection from "./FeedbackSection";
 import { ACTIVITY_BADGE, activityLabel } from "../../constants/reportEnums";
 import { toFa } from "../../utils/toFa";
 
 // r: رکورد واقعی DailyReport از بکند (به همراه include لیست lessons)
-export default function ReportCard({ r }) {
+// canFeedback: فقط مشاور/ادمین (توی صفحه‌ی جزئیات دانش‌آموز) — دانش‌آموز بازخوردها رو فقط می‌بینه
+export default function ReportCard({ r, canFeedback = false }) {
   const [open, setOpen] = useState(false);
+  const [fbCount, setFbCount] = useState((r.feedbacks || []).length);
   const lessons = r.lessons || [];
   const totalMin = lessons.reduce((s, l) => s + (l.study_minutes || 0), 0);
   const totalTest = lessons.reduce((s, l) => s + (l.test_count || 0), 0);
@@ -20,6 +23,7 @@ export default function ReportCard({ r }) {
           <div className="rep-date"><Icon name="calendar" /> {dateStr}</div>
           <h3 style={{ marginBottom: 0 }}>گزارش کار روزانه</h3>
           <div className="rep-summary">{subjNames || "—"}</div>
+          {fbCount > 0 && <span className="badge badge-teal" style={{ marginTop: 6 }}><Icon name="chat" /> بازخورد دارد</span>}
         </div>
         <span className="chev-ico"><Icon name="chev" /></span>
       </div>
@@ -47,6 +51,7 @@ export default function ReportCard({ r }) {
         </div>
         <div className="rep-note"><b>نقاط ضعف:</b> {r.weak_points || "—"}</div>
         {r.need_help && <div className="rep-note"><b>نیاز به کمک مشاور:</b> {r.need_help}</div>}
+        <FeedbackSection targetType="daily_report" targetId={r.id} initial={r.feedbacks || []} canWrite={canFeedback} onCountChange={setFbCount} />
       </div></div>
     </div>
   );

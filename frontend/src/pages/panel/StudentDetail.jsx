@@ -46,7 +46,7 @@ function ReportsTab({ userId }) {
   const [items, setItems] = useState([]);
   useEffect(() => { fetchStudentReports(userId).then(setItems).finally(() => setLoading(false)); }, [userId]);
   if (loading) return <div className="empty-state">در حال بارگذاری...</div>;
-  return items.length ? items.map((r) => <ReportCard key={r.id} r={r} />) : <div className="empty-state">هنوز گزارش کاری ارسال نشده.</div>;
+  return items.length ? items.map((r) => <ReportCard key={r.id} r={r} canFeedback />) : <div className="empty-state">هنوز گزارش کاری ارسال نشده.</div>;
 }
 
 function AnalysesTab({ userId }) {
@@ -54,7 +54,7 @@ function AnalysesTab({ userId }) {
   const [items, setItems] = useState([]);
   useEffect(() => { fetchStudentAnalyses(userId).then(setItems).finally(() => setLoading(false)); }, [userId]);
   if (loading) return <div className="empty-state">در حال بارگذاری...</div>;
-  return items.length ? items.map((a) => <ExamAnalysisCard key={a.id} a={a} />) : <div className="empty-state">هنوز تحلیل آزمونی ارسال نشده.</div>;
+  return items.length ? items.map((a) => <ExamAnalysisCard key={a.id} a={a} canFeedback />) : <div className="empty-state">هنوز تحلیل آزمونی ارسال نشده.</div>;
 }
 
 function IdentityTab({ student }) {

@@ -806,3 +806,17 @@ html[data-theme="light"] select.input{color-scheme:light;}
 
 
 .scroll-sentinel{text-align:center; padding:18px 0 8px; font-size:12.5px; color:var(--ink-dim);}
+
+/* بازخورد مشاور/ادمین زیر گزارش کار و تحلیل آزمون */
+.fb-section{margin-top:16px; padding-top:14px; border-top:1px dashed var(--surface-b);}
+.fb-title{display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--gold-bright); margin-bottom:10px;}
+.fb-title svg{width:16px; height:16px;}
+.fb-item{background:color-mix(in srgb, var(--teal) 8%, transparent); border:1px solid color-mix(in srgb, var(--teal) 25%, transparent); border-radius:12px; padding:12px 14px; margin-bottom:10px;}
+.fb-meta{display:flex; align-items:center; flex-wrap:wrap; gap:8px; font-size:12.5px; margin-bottom:6px;}
+.fb-meta b{color:var(--ink);}
+.fb-date{color:var(--ink-dim); font-size:11.5px;}
+.fb-actions{margin-inline-start:auto; display:flex; gap:4px;}
+.fb-text{font-size:13px; line-height:1.9; white-space:pre-wrap; word-break:break-word; color:var(--ink);}
+.fb-form textarea.input{min-height:76px;}
+.fb-form-actions{display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:8px;}
+.fb-count{margin-inline-end:auto; font-size:11.5px; color:var(--ink-dim);}

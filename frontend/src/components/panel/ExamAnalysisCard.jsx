@@ -1,10 +1,13 @@
 import { useState } from "react";
 import Icon from "../Icon";
+import FeedbackSection from "./FeedbackSection";
 import { toFa } from "../../utils/toFa";
 
 // a: رکورد واقعی AnalysisExam از بکند (به همراه include لیست lessons)
-export default function ExamAnalysisCard({ a }) {
+// canFeedback: فقط مشاور/ادمین (توی صفحه‌ی جزئیات دانش‌آموز) — دانش‌آموز بازخوردها رو فقط می‌بینه
+export default function ExamAnalysisCard({ a, canFeedback = false }) {
   const [open, setOpen] = useState(false);
+  const [fbCount, setFbCount] = useState((a.feedbacks || []).length);
   const subjects = a.lessons || [];
   const totalQ = subjects.reduce((s, x) => s + (x.test_count || 0), 0);
   const totalC = subjects.reduce((s, x) => s + (x.correct_count || 0), 0);
@@ -19,6 +22,7 @@ export default function ExamAnalysisCard({ a }) {
           <div className="rep-date"><Icon name="calendar" /> {dateStr} · {a.organizer}</div>
           <h3 style={{ marginBottom: 0 }}>{a.name}</h3>
           <div className="rep-summary">{subjNames || "—"}</div>
+          {fbCount > 0 && <span className="badge badge-teal" style={{ marginTop: 6 }}><Icon name="chat" /> بازخورد دارد</span>}
         </div>
         <span className="chev-ico"><Icon name="chev" /></span>
       </div>
@@ -47,6 +51,7 @@ export default function ExamAnalysisCard({ a }) {
         </div>
         <div className="rep-note"><b>مهم‌ترین ضعف:</b> {a.weak_points || "—"}</div>
         {a.notes && <div className="rep-note"><b>پیام برای مشاور:</b> {a.notes}</div>}
+        <FeedbackSection targetType="analysis_exam" targetId={a.id} initial={a.feedbacks || []} canWrite={canFeedback} onCountChange={setFbCount} />
       </div></div>
     </div>
   );
