@@ -14,16 +14,24 @@ export const MAJOR_LABELS = {
 
 export const LESSON_LABELS = {
   Mathematics: "ریاضی",
+  Geometry: "هندسه",
+  Discrete: "ریاضیات گسسته",
+  Statistics: "آمار",
+  Calculus: "حسابان",
   Physics: "فیزیک",
   Chemistry: "شیمی",
-  Calculus: "حسابان",
-  "Discrete Geometry": "هندسه گسسته",
-  Statistics: "آمار",
   Biology: "زیست‌شناسی",
   Geology: "زمین‌شناسی",
   Arabic: "عربی",
   Persian: "ادبیات فارسی",
   Religious: "دین و زندگی",
+  ScienceTechnology: "علوم و فنون",
+  Sociology: "جامعه شناسی",
+  History: "تاریخ",
+  Geography: "جغرافیا",
+  Language: "زبان",
+  Philosophy: "فلسفه",
+  Logic: "منطق"
 };
 
 export const STATUS_LABELS = {

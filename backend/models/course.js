@@ -18,16 +18,24 @@ class Course extends Model {
             course_lesson_name: {
                 type: DataTypes.ENUM(
                     "Mathematics",
+                    "Geometry",
+                    "Discrete",
+                    "Statistics",
+                    "Calculus",
                     "Physics",
                     "Chemistry",
-                    "Calculus",
-                    "Discrete Geometry",
-                    "Statistics",
                     "Biology",
                     "Geology",
                     "Arabic",
                     "Persian",
-                    "Religious"
+                    "Religious",
+                    "ScienceTechnology",
+                    "Sociology",
+                    "History",
+                    "Geography",
+                    "Language",
+                    "Philosophy",
+                    "Logic",
                 ),
                 allowNull: false
             },
