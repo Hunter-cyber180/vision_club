@@ -1,3 +1,4 @@
+import { toNum } from "../../utils/numeric";
 import { useState } from "react";
 import Icon from "../Icon";
 import Stepper from "../Stepper";
@@ -7,7 +8,7 @@ import { createDailyReport } from "../../api/panel";
 import { toFa } from "../../utils/toFa";
 
 const STEPS = [{ title: "دروس امروز" }, { title: "زمان‌بندی روز" }, { title: "جمع‌بندی" }];
-const emptyLesson = () => ({ subject: "", test_count: 0, essay_count: 0, study_minutes: 0, activity_type: "not_done" });
+const emptyLesson = () => ({ subject: "", test_count: "", essay_count: "", study_minutes: "", activity_type: "not_done" });
 const today = () => new Date().toISOString().slice(0, 10);
 
 export default function DailyReportWizard({ onSubmitted }) {
@@ -60,7 +61,9 @@ export default function DailyReportWizard({ onSubmitted }) {
         screen_time: screenTime,
         weak_points: weakPoints,
         need_help: needHelp,
-        lessons: lessons.filter((l) => l.subject !== ""),
+        lessons: lessons
+          .filter((l) => l.subject !== "")
+          .map((l) => ({ ...l, test_count: toNum(l.test_count), essay_count: toNum(l.essay_count), study_minutes: toNum(l.study_minutes) })),
       });
       toast("گزارش امروزت با موفقیت برای مشاور ارسال شد");
       reset();

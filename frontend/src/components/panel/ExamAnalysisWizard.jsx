@@ -1,3 +1,4 @@
+import { toNum } from "../../utils/numeric";
 import { useState } from "react";
 import Icon from "../Icon";
 import Stepper from "../Stepper";
@@ -6,7 +7,7 @@ import { useToast } from "../../context/ToastContext";
 import { createAnalysisExam } from "../../api/panel";
 
 const STEPS = [{ title: "اطلاعات آزمون" }, { title: "دروس آزمون" }, { title: "جمع‌بندی" }];
-const emptySubject = () => ({ subject: "", test_count: 0, correct_count: 0, wrong_minutes: 0 });
+const emptySubject = () => ({ subject: "", test_count: "", correct_count: "", wrong_minutes: "" });
 const today = () => new Date().toISOString().slice(0, 10);
 
 export default function ExamAnalysisWizard({ onSubmitted }) {
@@ -54,7 +55,9 @@ export default function ExamAnalysisWizard({ onSubmitted }) {
         standard_score: standardScore ? Number(standardScore) : null,
         weak_points: weakPoints.trim(),
         notes: notes.trim() || null,
-        lessons: subjects.filter((s) => s.subject !== ""),
+        lessons: subjects
+          .filter((s) => s.subject !== "")
+          .map((s) => ({ ...s, test_count: toNum(s.test_count), correct_count: toNum(s.correct_count), wrong_minutes: toNum(s.wrong_minutes) })),
       });
       toast("تحلیل آزمونت با موفقیت برای مشاور ارسال شد");
       reset();
