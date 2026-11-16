@@ -1,7 +1,5 @@
 const { MissedAnalysisExam, User, ExamSchedule } = require("../../models");
 
-// GET /pannel/missed-analysis-exams?examScheduleId=1&resolved=false
-// اگر examScheduleId نده، آخرین آزمون تعیین‌شده توسط ادمین در نظر گرفته می‌شود
 exports.getAll = async (request, response) => {
     try {
         const { examScheduleId, resolved } = request.query;
@@ -18,7 +16,6 @@ exports.getAll = async (request, response) => {
         if (resolved === "true") where.is_resolved = true;
         if (resolved === "false") where.is_resolved = false;
 
-        // یک مشاور فقط باید دانش‌آموزهای خودش رو ببینه؛ فقط ادمین به همه دسترسی داره.
         const userInclude = {
             model: User,
             as: "user",

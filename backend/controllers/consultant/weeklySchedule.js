@@ -12,9 +12,6 @@ exports.sendweeklySchedule = async (request, response) => {
                 message: "User not found!"
             });
 
-        // اگه ادمین از پنل خودش برنامه می‌فرسته، consultant_id باید همون مشاور
-        // واقعیِ این دانش‌آموز باشه، نه آی‌دی حساب ادمین (که اصلاً توی جدول
-        // consultants وجود نداره). مشاور خودش فقط برای دانش‌آموز خودش این کارو می‌کنه.
         const consultantId = request.role === "admin" ? user.consultant_id : request.user.id;
         if (!consultantId)
             return response.status(400).json({

@@ -4,7 +4,7 @@ const { Conversation } = require("../models");
 
 function initSocket(io) {
     // احراز هویت سوکت: توکن باید توی handshake.auth.token فرستاده بشه
-    // مثال فرانت: io(URL, { auth: { token: accessToken } })
+    // example: io(URL, { auth: { token: accessToken } })
     io.use((socket, next) => {
         try {
             const token = socket.handshake.auth?.token;

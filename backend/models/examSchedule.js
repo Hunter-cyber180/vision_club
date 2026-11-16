@@ -1,7 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
 
-// تاریخ برگزاری آزمون ماهانه که ادمین تعیین می‌کند.
-// روز بعد از این تاریخ، سیستم چک می‌کند کدام دانش‌آموزها فرم "تحلیل آزمون" را نفرستاده‌اند.
 class ExamSchedule extends Model {
     static init(sequelize) {
         return super.init({

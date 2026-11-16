@@ -1,8 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
 
-// بازخورد مشاور/ادمین روی یک «گزارش کار روزانه» یا «تحلیل آزمون» دانش‌آموز.
-// رابطه‌ی چندریختی (polymorphic) است: target_type مشخص می‌کنه target_id به کدوم جدول اشاره می‌کنه،
-// برای همین foreign key واقعی ندارد.
 class ReportFeedback extends Model {
     static init(sequelize) {
         return super.init({

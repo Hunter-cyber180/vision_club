@@ -5,9 +5,7 @@ const missedDailyReportController = require("../controllers/consultant/missedDai
 const missedAnalysisExamController = require("../controllers/consultant/missedAnalysisExam");
 const { authenticateAccessToken } = require("../middlewares/auth");
 
-// فقط مشاور و ادمین به این نتایج دسترسی دارن
 
-// گزارش کار روزانه (چک هر ۲۴ ساعت)
 router.get(
     "/missed-reports",
     authenticateAccessToken("consultant", "admin"),

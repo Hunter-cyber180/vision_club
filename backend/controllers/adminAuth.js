@@ -4,10 +4,6 @@ const { setAdminAccessTokenCookie } = require("../helpers/storeRefreshToken");
 
 const ROLE = "admin";
 
-// accessToken فقط توی یه httpOnly session cookie قرار می‌گیره (بدون maxAge)
-// و اصلاً به صورت JSON به فرانت برگردونده نمی‌شه.
-// نتیجه: با بسته‌شدن کامل مرورگر، کوکی پاک می‌شه و ادمین باید دوباره لاگین کنه.
-
 exports.login = async (request, response, next) => {
   try {
     const admin = request.user; // از verifyLoginCredentials("admin")
@@ -56,10 +52,6 @@ exports.me = async (request, response, next) => {
   }
 };
 
-// یک accessToken کوتاه‌مدت جدا فقط برای اتصال Socket.io (چت زنده) صادر می‌کنه.
-// چون accessToken اصلی ادمین httpOnly cookie‌ست و به JS در دسترس نیست، ولی
-// اتصال سوکت به یه توکن قابل دسترس در جاوااسکریپت نیاز داره (handshake.auth.token).
-// این endpoint خودش پشت authenticateAccessToken("admin") (یعنی همون کوکی) قرار داره.
 exports.getSocketToken = async (request, response, next) => {
   try {
     const admin = request.user;
@@ -73,7 +65,6 @@ exports.getSocketToken = async (request, response, next) => {
   }
 };
 
-// ادمین خودش می‌تونه نام کاربری/رمز عبورش رو تغییر بده (ایمیل قابل تغییر نیست)
 exports.updateMe = async (request, response, next) => {
   try {
     const bcrypt = require("bcryptjs");

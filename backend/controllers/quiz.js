@@ -1,6 +1,5 @@
 const { Quiz: QuizModel, Question: QuestionModel, Option: OptionModel, sequelize } = require("../models");
 
-// لیست همه‌ی آزمون‌ها (به همراه تعداد سوالات)
 exports.index = async (request, response) => {
   try {
     const quizzes = await QuizModel.findAll({
@@ -31,10 +30,6 @@ exports.index = async (request, response) => {
   }
 }
 
-/**
- * نمایش یک آزمون به همراه تمام سوالات و گزینه‌هایش
- * (پاسخ صحیح/is_correct برای دانش‌آموز نمایش داده نمی‌شود)
- */
 exports.getOne = async (request, response) => {
   try {
     const { id } = request.params;
@@ -81,9 +76,6 @@ exports.getOne = async (request, response) => {
   }
 }
 
-/**
- * ساخت یک آزمون جدید (فقط خود آزمون، بدون سوالات - سوالات جدا اضافه می‌شوند)
- */
 exports.create = async (request, response) => {
   try {
     const { title, description, scheduled_at, answersheet_link, time_minutes, major, grade, question_count } = request.body;
@@ -158,9 +150,6 @@ exports.update = async (request, response) => {
   }
 }
 
-/**
- * حذف یک آزمون (به همراه سوالات و گزینه‌ها به صورت آبشاری)
- */
 exports.delete = async (request, response) => {
   try {
     const { id } = request.params;

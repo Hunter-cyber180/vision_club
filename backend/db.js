@@ -1,8 +1,6 @@
 const { Sequelize } = require("sequelize");
 const configs = require("./configs");
 
-// فقط ساخت instance سکوئلایز. مقداردهی اولیه‌ی مدل‌ها و تعریف روابط
-// در models/index.js انجام می‌شه (اونجا مرکز واحد مدل‌هاست).
 const sequelize = new Sequelize(
   configs.db.name,
   configs.db.user,

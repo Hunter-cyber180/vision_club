@@ -3,9 +3,6 @@ const moment = require("moment-jalaali");
 const configs = require("../configs");
 const { User, TuitionPayment } = require("../models");
 
-// هر روز رأس ساعت مشخص‌شده در .env (پیش‌فرض 00:10) اجرا می‌شود.
-// برای ماه شمسی جاری، اگر دانش‌آموزی هنوز رکورد شهریه نداشته باشد،
-// یک رکورد با وضعیت "unpaid" ساخته می‌شود تا بتوان بررسی کرد شهریه پرداخت شده یا نه.
 const schedule = configs.cron.tuitionPayment;
 
 if (!cron.validate(schedule)) {

@@ -4,7 +4,6 @@ const { authenticateAccessToken } = require("../middlewares/auth");
 
 const router = express.Router();
 
-// فقط مشاور و ادمین بازخورد می‌نویسن؛ دانش‌آموز بازخوردها رو توی لیست گزارش‌ها/تحلیل‌های خودش (feedbacks) می‌بینه.
 router.use(authenticateAccessToken("consultant", "admin"));
 
 router.post("/", controller.create);

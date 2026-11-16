@@ -2,7 +2,6 @@ const bcrypt = require("bcryptjs");
 const { Op } = require("sequelize");
 const { Consultant, User, DailyReport, AnalysisExam, ExamSchedule, TuitionPayment } = require("../../models");
 
-// فقط ادمین می‌تونه حساب مشاور بسازه
 exports.create = async (request, response) => {
     try {
         const {
@@ -60,8 +59,6 @@ exports.getAll = async (request, response) => {
 exports.getOne = async (request, response) => {
     try {
         const { id } = request.params;
-        // لیست دانش‌آموزها اینجا include نمی‌شه (می‌تونه خیلی بزرگ باشه)؛
-        // برای اون از GET /admin/consultants/:id/students (صفحه‌بندی‌شده) استفاده کن.
         const consultant = await Consultant.findByPk(id);
         if (!consultant)
             return response.status(404).json({ success: false, message: "مشاور یافت نشد!" });
@@ -78,9 +75,6 @@ exports.getOne = async (request, response) => {
     }
 };
 
-// GET /admin/consultants/:id/students -> لیست صفحه‌بندی‌شده‌ی دانش‌آموزان یک مشاورِ خاص
-// (برای تب «دانش‌آموزان این مشاور» در جزئیات مشاور، با همون فلگ‌های وضعیت
-// گزارش/تحلیل/شهریه که در پنل مشاور و پنل دانش‌آموزانِ ادمین استفاده می‌شه)
 exports.getStudents = async (request, response) => {
     try {
         const { id } = request.params;
@@ -131,9 +125,6 @@ exports.getStudents = async (request, response) => {
 
         let analyzedLatestExamIds = new Set();
         if (latestExamSchedule && studentIds.length) {
-            // فرم تحلیل آزمون سمت دانش‌آموز فعلاً exam_schedule_id ارسال نمی‌کنه،
-            // پس هر تحلیلی که بعد از تاریخ برگزاری آخرین آزمون ثبت شده باشه رو هم
-            // به‌عنوان "تحلیل این آزمون" حساب می‌کنیم، نه فقط تطابق دقیق آی‌دی.
             const analyses = await AnalysisExam.findAll({
                 where: {
                     user_id: { [Op.in]: studentIds },
@@ -210,10 +201,6 @@ exports.update = async (request, response) => {
             updateData.consultant_password = await bcrypt.hash(consultant_password, 10);
         }
 
-        // اگه مشاور از فعال به غیرفعال تغییر کنه، دیگه نباید دانش‌آموزی زیر
-        // نظرش بمونه — همه‌ی دانش‌آموزهای این مشاور به کاربر عادی تبدیل می‌شن
-        // (دقیقاً همون کاری که برای حذف تک‌به‌تکِ هر دانش‌آموز از لیست مشاور
-        // انجام می‌شه: شهریه‌ش پاک می‌شه و رکوردهای پرداخت‌نشده‌ش حذف می‌شن).
         const wasActive = consultant.is_active;
         const willBeActive = updateData.is_active;
 

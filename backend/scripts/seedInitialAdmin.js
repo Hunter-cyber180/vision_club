@@ -1,11 +1,6 @@
 const bcrypt = require("bcryptjs");
 const { Admin } = require("../models");
 
-/**
- * روی یک دیتابیس کاملاً خالی، هیچ راهی برای ساختن اولین ادمین وجود نداره
- * (هیچ کاربری نمی‌تونه از فرانت خودش رو ادمین کنه). این تابع، اگه جدول
- * admins خالی باشه، یک ادمین اولیه از روی متغیرهای محیطی می‌سازه.
- */
 async function seedInitialAdmin() {
     const count = await Admin.count();
     if (count > 0) return;

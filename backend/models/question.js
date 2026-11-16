@@ -1,6 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
 
-// سوالات یک آزمون (Quiz). هر سوال چند گزینه (Option) دارد.
 class Question extends Model {
     static init(sequelize) {
         return super.init({

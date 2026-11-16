@@ -1,9 +1,5 @@
 const { MissedDailyReport, User } = require("../../models");
 
-// GET /pannel/missed-reports?date=YYYY-MM-DD&resolved=false
-// اگر date داده نشه، فیلتر تاریخ اعمال نمی‌شه (همه‌ی رکوردهای حل‌نشده برگردونده می‌شن؛
-// چون جاب هر شب نیمه‌شب برای «دیروز» رکورد می‌سازه، محدود کردن پیش‌فرض به «امروز»
-// هیچ‌وقت با اون match نمی‌کرد)
 exports.getAll = async (request, response) => {
     try {
         const { date, resolved } = request.query;
@@ -13,8 +9,6 @@ exports.getAll = async (request, response) => {
         if (resolved === "true") where.is_resolved = true;
         if (resolved === "false") where.is_resolved = false;
 
-        // یک مشاور فقط باید دانش‌آموزهای خودش رو ببینه، نه همه‌ی دانش‌آموزهای
-        // مجموعه رو؛ فقط ادمین به همه دسترسی داره.
         const userInclude = {
             model: User,
             as: "user",
@@ -45,7 +39,6 @@ exports.getAll = async (request, response) => {
     }
 };
 
-// GET /pannel/missed-reports/count -> برای بج نوتیفیکیشن توی پنل (همه‌ی رکوردهای حل‌نشده، صرف‌نظر از تاریخ)
 exports.getCount = async (request, response) => {
     try {
         const { date } = request.query;
@@ -69,7 +62,6 @@ exports.getCount = async (request, response) => {
     }
 };
 
-// PATCH /pannel/missed-reports/:id/resolve -> وقتی مشاور با دانش‌آموز پیگیری کرد
 exports.resolve = async (request, response) => {
     try {
         const { id } = request.params;

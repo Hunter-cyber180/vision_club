@@ -1,6 +1,5 @@
 const { DataTypes, Model, Op } = require("sequelize");
 
-// سبد پرداخت موقت که تا لحظه‌ی تایید زرین‌پال زنده می‌ماند (بعدش پاک/تبدیل به Charge می‌شود)
 class Checkout extends Model {
     static init(sequelize) {
         const model = super.init({

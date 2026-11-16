@@ -62,7 +62,6 @@ exports.getPaidTuitionPayments = async (request, response) => {
     };
 };
 
-// مشاور شهریه‌ی یک دانش‌آموز رو برای «ماه جاری» (یا ماهی که مشخص کنه) به پرداخت‌شده تغییر می‌ده
 exports.changeTuitionPaymentStatus = async (request, response) => {
     try {
         const consultant = request.user;

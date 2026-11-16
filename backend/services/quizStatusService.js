@@ -7,12 +7,11 @@ class QuizStatusService {
         try {
             const now = new Date();
             
-            // 1. به‌روزرسانی آزمون‌هایی که زمان شروعشان رسیده
             const quizzesToStart = await Quiz.findAll({
                 where: {
                     status: "not-held",
                     scheduled_at: {
-                        [Op.lte]: now // زمان برگزاری <= الان
+                        [Op.lte]: now
                     }
                 }
             });
@@ -22,7 +21,6 @@ class QuizStatusService {
                 console.log(`✅ Quiz "${quiz.title}" started at ${now}`);
             }
 
-            // 2. به‌روزرسانی آزمون‌هایی که زمان پایانشان رسیده
             const quizzesToEnd = await Quiz.findAll({
                 where: {
                     status: "ongoing",

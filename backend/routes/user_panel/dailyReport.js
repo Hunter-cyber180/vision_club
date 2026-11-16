@@ -7,7 +7,6 @@ const { authenticateAccessToken, requireStudentAccountRole } = require("../../mi
 
 const router = express.Router();
 
-// دانش‌آموز (فقط role=student — کاربر عادی به این قابلیت دسترسی نداره)
 router.post("/", authenticateAccessToken("user"), requireStudentAccountRole, validate(dailyReportSchema), controller.create);
 router.get("/mine", authenticateAccessToken("user"), requireStudentAccountRole, controller.getMine);
 

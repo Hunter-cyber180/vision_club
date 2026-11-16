@@ -12,12 +12,8 @@ class User extends Model {
                 birthday: { type: DataTypes.DATEONLY, allowNull: false },
                 gender: { type: DataTypes.ENUM("male", "female"), allowNull: false },
                 charge_amount: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 },
-                // "user" یعنی کاربر عادی سایت (تازه ثبت‌نام‌کرده) - "student" یعنی دانش‌آموزی که
-                // یک مشاور به‌صورت دستی پذیرشش کرده و پنل دانش‌آموزی براش باز می‌شه.
                 role: { type: DataTypes.ENUM("user", "student"), allowNull: false, defaultValue: "user" },
                 consultant_id: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true, defaultValue: null },
-                // مبلغ شهریه‌ی ماهانه‌ای که مشاور برای این دانش‌آموز مشخص کرده (تومان).
-                // تا وقتی مشاور تعیینش نکرده null هست و دانش‌آموز نمی‌تونه از کیف پول شهریه پرداخت کنه.
                 tuition_amount: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true, defaultValue: null },
                 city: { type: DataTypes.STRING(100), allowNull: false },
                 student_number: { type: DataTypes.STRING(50), allowNull: false, unique: 'users_student_number_unique' },

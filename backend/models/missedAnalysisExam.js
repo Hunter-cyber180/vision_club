@@ -1,6 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
 
-// دانش‌آموزهایی که روز بعد از آزمون ماهانه، فرم تحلیل آزمون را نفرستاده‌اند
 class MissedAnalysisExam extends Model {
     static init(sequelize) {
         return super.init({

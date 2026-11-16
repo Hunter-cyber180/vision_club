@@ -1,7 +1,6 @@
 const moment = require("moment-jalaali");
 const { TuitionPayment, Charge, WeeklySchedule, User } = require("../../models");
 
-// GET /user-panel/tuition-payments/mine -> تاریخچه شهریه‌ی خودِ دانش‌آموز
 exports.getMyTuitionPayments = async (request, response) => {
     try {
         const user = request.user;
@@ -20,7 +19,6 @@ exports.getMyTuitionPayments = async (request, response) => {
     }
 };
 
-// GET /user-panel/charge/mine -> تاریخچه‌ی شارژ کیف پول خودِ کاربر (به‌همراه موجودی فعلی)
 exports.getMyCharges = async (request, response) => {
     try {
         const user = request.user;
@@ -45,13 +43,10 @@ exports.getMyCharges = async (request, response) => {
     }
 };
 
-// POST /user-panel/mine/tuition-payments/pay -> پرداخت شهریه‌ی «ماه جاری» مستقیم از موجودی کیف پول
-// (فقط دانش‌آموز؛ نیازی به تایید مشاور/ادمین نیست چون مبلغ از قبل توسط مشاور تعیین شده)
 exports.payTuitionFromWallet = async (request, response) => {
     try {
         const authUser = request.user;
 
-        // تازه‌ترین موجودی/مبلغ شهریه رو مستقیم از دیتابیس بخون (نه از توکن/کش)
         const user = await User.findByPk(authUser.id);
         if (!user)
             return response.status(404).json({ success: false, message: "کاربر یافت نشد!" });
@@ -97,10 +92,8 @@ exports.payTuitionFromWallet = async (request, response) => {
                 message: "موجودی کیف پول کافی نیست. لطفاً ابتدا کیف پولت رو شارژ کن.",
             });
 
-        // کسر از کیف پول
         await user.update({ charge_amount: user.charge_amount - amount });
 
-        // ثبت پرداخت شهریه
         await tuitionPayment.update({
             status: "paid",
             amount,
@@ -125,8 +118,6 @@ exports.payTuitionFromWallet = async (request, response) => {
     }
 };
 
-// GET /user-panel/weekly-stats -> آمار هفته‌ی اخیر خودِ دانش‌آموز (برای سه
-// نمودار داشبورد: روند تراز، حجم تست/تشریحی، حجم مطالعه‌ی روزانه)
 exports.getMyWeeklyStats = async (request, response) => {
     try {
         const { computeWeeklyStats } = require("../../utils/weeklyStats");
@@ -141,7 +132,6 @@ exports.getMyWeeklyStats = async (request, response) => {
     }
 };
 
-// GET /user-panel/weekly-schedules/mine -> برنامه‌های هفتگی ارسال‌شده توسط مشاورِ خودِ دانش‌آموز
 exports.getMyWeeklySchedules = async (request, response) => {
     try {
         const user = request.user;

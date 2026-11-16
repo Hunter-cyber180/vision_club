@@ -1,8 +1,6 @@
 const { DataTypes, Model } = require("sequelize");
 const { sequelize } = require("../db");
 
-// جزوه/فایل پیوست‌شده به یک دوره (مثلاً جزوه جمع‌بندی PDF).
-// چون سیستم آپلود فایل نداریم، فایل با لینک URL ثبت می‌شه.
 class CourseNote extends Model {
     static init(sequelize) {
         return super.init({

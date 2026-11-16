@@ -11,9 +11,6 @@ const {
 
 const ROLE = "consultant";
 
-// ثبت‌نام مشاور از طریق فرم عمومی سایت (منتظر تایید ادمین می‌مونه؛ is_active=false
-// تا وقتی ادمین از پنل خودش تاییدش کنه). برخلاف قبل که فقط ادمین می‌تونست
-// حساب مشاور بسازه، این مسیر self-service عمومیه.
 exports.register = async (request, response, next) => {
   try {
     const { Consultant } = require("../models");
@@ -143,7 +140,6 @@ exports.me = async (request, response, next) => {
   }
 };
 
-// مشاور خودش می‌تونه بخشی از پروفایلش رو ویرایش کنه (نه ایمیل/is_active که فقط ادمین کنترلشون می‌کنه)
 exports.updateMe = async (request, response, next) => {
   try {
     const bcrypt = require("bcryptjs");

@@ -42,8 +42,6 @@ exports.getAllQuizzes = async (request, response) => {
     };
 };
 
-// آزمون ماهانه توسط ادمین ساخته می‌شود؛ سوالات جداگانه با
-// POST /admin/quizzes/:quizId/questions اضافه می‌شوند (controllers/question.js)
 exports.createQuiz = async (request, response) => {
     try {
         const { title, description, scheduled_at, answersheet_link, time_minutes, major, grade, question_count } = request.body;

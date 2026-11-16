@@ -1,8 +1,6 @@
 const moment = require("moment-jalaali");
 const { ExamSchedule, MissedAnalysisExam } = require("../../models");
 
-// ادمین تاریخ برگزاری آزمون ماهانه رو ثبت می‌کنه.
-// روز بعدش cron/analysisExamCheckJob.js چک می‌کنه کدوم دانش‌آموزها فرم تحلیل آزمون رو نفرستادن.
 exports.create = async (request, response) => {
     try {
         const admin = request.user;

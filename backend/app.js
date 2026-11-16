@@ -50,10 +50,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.resolve(__dirname, "public")));
 
-// توجه: به‌روزرسانی وضعیت آزمون‌ها (not-held/ongoing/held) دیگه توی میدلور
-// هر ریکوئست انجام نمی‌شه (سنگین بود)، این کار الان به‌صورت cron هر دقیقه انجام میشه:
-// جدا از این، cron shomaresh زیر هم فعال هستن: jobs/quizStatusJob.js
-
 // --- auth ---
 app.use("/auth", authRoutes);
 app.use("/admin/auth", adminAuthRoutes);
@@ -106,7 +102,6 @@ app.use((request, response) => {
     response.status(404).json({ success: false, message: "مسیر یافت نشد!" });
 });
 
-// خطای عمومی (سکوئلایز/JWT/هر چیز دیگه‌ای که با next(error) پاس داده بشه)
 app.use((error, request, response, next) => {
     console.error(error);
     response.status(error.status || 500).json({

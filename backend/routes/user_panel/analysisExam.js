@@ -7,7 +7,6 @@ const { authenticateAccessToken, requireStudentAccountRole } = require("../../mi
 
 const router = express.Router();
 
-// دانش‌آموز فرم تحلیل آزمون رو ثبت می‌کنه (فقط role=student)
 router.post("/", authenticateAccessToken("user"), requireStudentAccountRole, validate(analysisExamSchema), controller.create);
 router.get("/mine", authenticateAccessToken("user"), requireStudentAccountRole, controller.getMine);
 router.get("/:id", authenticateAccessToken("user", "consultant", "admin"), controller.getOne);

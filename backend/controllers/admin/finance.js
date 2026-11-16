@@ -1,7 +1,6 @@
 const { Charge, TuitionPayment, User, Consultant } = require("../../models");
 const { Op } = require("sequelize");
 
-// GET /admin/finance/summary -> کارت‌های خلاصه‌ی بالای صفحه‌ی مالی + داشبورد
 exports.getSummary = async (request, response) => {
     try {
         const totalCharged = (await Charge.sum("charge_amount")) || 0;
@@ -17,7 +16,6 @@ exports.getSummary = async (request, response) => {
 
         const unpaidTuitionCount = await TuitionPayment.count({ where: { status: "unpaid" } });
 
-        // درآمد «همین ماه شمسی/میلادی جاری» (برای کارت داشبورد)
         const monthStart = new Date();
         monthStart.setDate(1);
         monthStart.setHours(0, 0, 0, 0);
@@ -60,9 +58,6 @@ exports.getUnpaidStudents = async (request, response) => {
         const unpaid = await TuitionPayment.findAll({
             where: { status: "unpaid" },
             include: [
-                // اگه دانش‌آموزی بعداً به کاربر عادی تبدیل بشه (و به هر دلیلی رکورد
-                // شهریه‌ش پاک نشده باشه)، required:true باعث می‌شه اینجا دیگه نشون
-                // داده نشه — چون کاربر عادی اصلاً شهریه‌ای نداره.
                 { model: User, as: "user", attributes: ["id", "name", "lastname", "role"], where: { role: "student" }, required: true },
                 { model: Consultant, as: "consultant", attributes: ["id", "name", "lastname"] },
             ],
@@ -80,18 +75,12 @@ exports.getUnpaidStudents = async (request, response) => {
     }
 };
 
-// GET /admin/finance/transactions -> لیست واقعی تراکنش‌ها (شارژ کیف پول + شهریه‌ی پرداخت‌شده)،
-// ادغام و مرتب‌شده بر اساس تاریخ، با صفحه‌بندی واقعی (تا لیست در فرانت دراز نشه).
-// چون این لیست از دو جدول جدا (charges و tuition_payments) ادغام می‌شه، نمی‌شه
-// مستقیم OFFSET/LIMIT جداگانه روی هرکدوم زد و انتظار ترتیب درست داشت؛ به‌جاش
-// از هر دو جدول به اندازه‌ی کافی (تا انتهای صفحه‌ی درخواستی) می‌گیریم، ادغام و
-// مرتب می‌کنیم، و بعد دقیقاً همون صفحه رو برش می‌زنیم.
 exports.getTransactions = async (request, response) => {
     try {
         const { page = 1, limit = 10 } = request.query;
         const parsedLimit = Math.min(Number(limit) || 10, 100);
         const parsedPage = Math.max(Number(page) || 1, 1);
-        const needed = parsedPage * parsedLimit; // تا انتهای صفحه‌ی درخواستی چند ردیف لازمه
+        const needed = parsedPage * parsedLimit;
 
         const [chargesCount, tuitionsCount, charges, tuitions] = await Promise.all([
             Charge.count(),
@@ -155,7 +144,6 @@ exports.getTransactions = async (request, response) => {
     }
 };
 
-// GET /admin/finance/monthly -> نمودار درآمد ۶ ماه اخیر (بر اساس تاریخ میلادیِ created_at/paid_at، چون jalali_year/jalali_month فقط برای شهریه ثبت می‌شه نه شارژ)
 exports.getMonthlyRevenue = async (request, response) => {
     try {
         const months = [];

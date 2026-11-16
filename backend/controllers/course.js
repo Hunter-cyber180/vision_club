@@ -12,9 +12,9 @@ exports.getAllCourses = async (request, response) => {
       major = 'all',
       course_lesson_name = 'all',
       price_type = 'all',
-      status = 'all', // 'in-progress' | 'finished' | 'all' — فیلتر واقعی، نه مرتب‌سازی
-      approval_status = 'approved', // پیش‌فرض فقط تاییدشده‌ها (برای سایت عمومی)؛ پنل ادمین 'all' می‌فرسته تا موارد در انتظار تایید رو هم ببینه
-      consultant_id, // برای پنل «کلاس‌های من» مشاور — کلاس‌های خودش با هر وضعیتی
+      status = 'all',
+      approval_status = 'approved',
+      consultant_id,
       search = '',
     } = request.query;
 
@@ -180,10 +180,6 @@ exports.create = async (request, response) => {
             course_lesson_name
         } = request.body;
 
-        // ادمین کلاسی که خودش می‌سازه نیازی به تایید خودش نداره (approved مستقیم)؛
-        // مشاور اگه کلاس بسازه، تا تایید ادمین توی سایت عمومی نشون داده نمی‌شه
-        // (pending) و فقط برای مشاورِ سازنده و پنل ادمین قابل مشاهده‌ست. مشاور
-        // فقط می‌تونه برای خودش کلاس بسازه (consultant_id از توکن، نه از بدنه).
         const isConsultant = request.role === "consultant";
         const finalConsultantId = isConsultant ? request.user.id : consultant_id;
         const approval_status = isConsultant ? "pending" : "approved";

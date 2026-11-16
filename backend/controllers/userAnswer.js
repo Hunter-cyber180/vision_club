@@ -1,8 +1,6 @@
 const { UserAnswer: UserAnswerModel, Question: QuestionModel, Option: OptionModel, UserQuiz: UserQuizModel, sequelize } = require("../models");
 
-/**
-   * 4. ثبت پاسخ کاربر و تصحیح خودکار
-   */
+
 exports.submitAnswers = async (request, response) => {
   const transaction = await sequelize.transaction();
 
@@ -10,7 +8,6 @@ exports.submitAnswers = async (request, response) => {
     const { quizId } = request.params;
     const { user_id, answers } = request.body;
 
-    // answers می‌تواند خالی یا شامل تعدادی از سوالات باشد
     if (!answers || !Array.isArray(answers))
       return response.status(400).json({
         success: false,
@@ -22,7 +19,6 @@ exports.submitAnswers = async (request, response) => {
     let unansweredCount = 0;
     const results = [];
 
-    // دریافت تمام سوالات این آزمون
     const questions = await QuestionModel.findAll({
       where: { quiz_id: quizId },
       include: [{
@@ -33,25 +29,20 @@ exports.submitAnswers = async (request, response) => {
 
     const totalQuizQuestions = questions.length;
 
-    // حلقه روی پاسخ‌های ارسال شده
     for (const answerData of answers) {
       const { question_id, selected_option_id } = answerData;
 
-      // پیدا کردن سوال
       const question = questions.find(q => q.id === question_id);
       if (!question)
         throw new Error(`سوال با شناسه ${question_id} در این آزمون وجود ندارد`);
 
-      // بررسی اینکه گزینه متعلق به این سوال باشد
       const selectedOption = question.options.find(opt => opt.id === selected_option_id);
       if (!selectedOption)
         throw new Error(`گزینه ${selected_option_id} متعلق به سوال ${question_id} نیست`);
 
-      // بررسی درستی پاسخ
       const isCorrect = selectedOption.is_correct;
       if (isCorrect) score++;
 
-      // ذخیره پاسخ کاربر
       await UserAnswerModel.create({
         user_id,
         question_id,
@@ -68,7 +59,6 @@ exports.submitAnswers = async (request, response) => {
       });
     }
 
-    // محاسبه تعداد سوالات بی‌پاسخ
     const answeredQuestionIds = answers.map(a => a.question_id);
     const unansweredQuestions = questions.filter(q => !answeredQuestionIds.includes(q.id));
     unansweredCount = unansweredQuestions.length;
@@ -77,7 +67,6 @@ exports.submitAnswers = async (request, response) => {
       ? parseFloat(((score / totalQuizQuestions) * 100).toFixed(2))
       : 0;
 
-    // خلاصه‌ی نتیجه در UserQuiz ذخیره/به‌روزرسانی می‌شود (برای گزارش‌ها و کارنامه)
     const [userQuiz] = await UserQuizModel.findOrCreate({
       where: { user_id, quiz_id: quizId },
       defaults: { score_percentage: scorePercentage },
@@ -115,15 +104,10 @@ exports.submitAnswers = async (request, response) => {
   }
 }
 
-/**
- * دریافت کارنامه کامل یک کاربر برای یک آزمون خاص
- * شامل: پاسخ‌های درست، غلط، بی‌پاسخ و جزئیات هر سوال
- */
 exports.getUserResult = async (request, response) => {
   try {
     const { quizId, userId } = request.params;
 
-    // 1. دریافت همه سوالات آزمون به همراه گزینه‌ها
     const questions = await QuestionModel.findAll({
       where: { quiz_id: quizId },
       include: [{
@@ -139,7 +123,6 @@ exports.getUserResult = async (request, response) => {
         message: 'آزمون مورد نظر سوالی ندارد'
       });
 
-    // 2. دریافت پاسخ‌های ثبت شده این کاربر برای این آزمون
     const userAnswers = await UserAnswerModel.findAll({
       where: {
         user_id: userId
@@ -159,14 +142,12 @@ exports.getUserResult = async (request, response) => {
       }]
     });
 
-    // 3. ایجاد لیست کامل از وضعیت هر سوال
     let correctCount = 0;
     let wrongCount = 0;
     let unansweredCount = 0;
     const questionDetails = [];
 
     for (const question of questions) {
-      // پیدا کردن پاسخ کاربر برای این سوال
       const userAnswer = userAnswers.find(a => a.question_id === question.id);
       
       let status = 'unanswered'; // وضعیت: answered, unanswered
@@ -174,7 +155,6 @@ exports.getUserResult = async (request, response) => {
       let isCorrect = null;
       let correctOption = null;
 
-      // پیدا کردن گزینه صحیح (برای نمایش در کارنامه)
       const correctOptionObj = question.options.find(opt => opt.is_correct === true);
       if (correctOptionObj)
         correctOption = {
@@ -183,7 +163,6 @@ exports.getUserResult = async (request, response) => {
         };
 
       if (userAnswer) {
-        // کاربر پاسخ داده
         selectedOption = {
           id: userAnswer.selected_option_id,
           text: userAnswer.selectedOption ? userAnswer.selectedOption.option_text : null
@@ -197,11 +176,9 @@ exports.getUserResult = async (request, response) => {
           wrongCount++;
         }
       } else {
-        // کاربر پاسخ نداده
         unansweredCount++;
       }
 
-      // اضافه کردن جزئیات سوال به لیست
       questionDetails.push({
         question_id: question.id,
         order_number: question.order_number,
@@ -210,12 +187,10 @@ exports.getUserResult = async (request, response) => {
         status: status, // 'correct', 'wrong', 'unanswered'
         user_answer: selectedOption,
         correct_answer: correctOption,
-        // اگر پاسخ غلط است، گزینه صحیح را هم نشان بده
-        // (این کار برای یادگیری کاربر مفید است)
         options: question.options.map(opt => ({
           id: opt.id,
           text: opt.option_text,
-          is_correct: opt.is_correct // برای نمایش در کارنامه مدیریت
+          is_correct: opt.is_correct
         }))
       });
     }
@@ -223,7 +198,6 @@ exports.getUserResult = async (request, response) => {
     const totalQuestions = questions.length;
     const answeredCount = correctCount + wrongCount;
 
-    // 4. برگرداندن پاسخ نهایی
     return response.status(200).json({
       success: true,
       data: {
@@ -238,7 +212,6 @@ exports.getUserResult = async (request, response) => {
           score_percentage: parseFloat(((correctCount / totalQuestions) * 100).toFixed(2))
         },
         details: questionDetails,
-        // لیست سوالات بی‌پاسخ (برای نمایش جداگانه)
         unanswered_list: questionDetails
           .filter(q => q.status === 'unanswered')
           .map(q => ({
@@ -246,7 +219,6 @@ exports.getUserResult = async (request, response) => {
             order: q.order_number,
             text: q.question_text
           })),
-        // لیست سوالات غلط (برای نمایش جداگانه)
         wrong_list: questionDetails
           .filter(q => q.status === 'wrong')
           .map(q => ({

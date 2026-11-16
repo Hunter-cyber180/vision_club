@@ -1,10 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
 
-// یک گفتگوی دو نفره بین هر ترکیبی از نقش‌ها: دانش‌آموز/کاربر (user)، مشاور (consultant)، ادمین/پشتیبان (admin)
-// از الگوی polymorphic استفاده شده تا یک جدول برای همه‌ی حالت‌ها کافی باشد:
-//   - دانش‌آموز <-> مشاور
-//   - هر کسی <-> پشتیبانی سایت (که فقط یک ادمین است)
-//   - مشاور <-> ادمین
 class Conversation extends Model {
     static init(sequelize) {
         return super.init({

@@ -8,13 +8,6 @@ const {
 
 const WEEKDAY_LABELS = ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه"];
 
-/**
- * آمار هفته‌ی اخیر (۷ روز گذشته تا امروز) یک دانش‌آموز، برای سه نمودار:
- *  - روند تراز آزمون‌ها (از AnalysisExam.standard_score، بر اساس test_date)
- *  - حجم تست/تشریحی روزانه (جمع DailyReportLesson.test_count/essay_count به تفکیک روز)
- *  - حجم مطالعه‌ی روزانه به دقیقه (جمع DailyReportLesson.study_minutes به تفکیک روز)
- * هر سه بر اساس همین بازه‌ی یک‌هفته‌ای محاسبه می‌شن.
- */
 async function computeWeeklyStats(userId) {
     const today = moment().startOf("day");
     const weekStart = moment(today).subtract(6, "days");
@@ -34,7 +27,6 @@ async function computeWeeklyStats(userId) {
         }),
     ]);
 
-    // یک ردیف پایه برای هر ۷ روز (حتی روزهایی که گزارشی نبوده، صفر نشون داده بشه)
     const days = [];
     for (let i = 0; i < 7; i++) {
         const d = moment(weekStart).add(i, "days");
@@ -54,9 +46,6 @@ async function computeWeeklyStats(userId) {
         const bucket = byDate.get(key);
         if (!bucket) continue;
         for (const lesson of report.lessons || []) {
-            // درسی که وضعیتش «انجام‌نشده» ثبت شده رو توی نمودارها حساب نکن —
-            // چون واقعاً کاری روش انجام نشده، نباید توی حجم تست/تشریحی یا
-            // مطالعه‌ی اون روز جمع بشه (even اگه به‌اشتباه عددی توش وارد شده باشه).
             if (lesson.activity_type === "not_done") continue;
             bucket.test_count += lesson.test_count || 0;
             bucket.essay_count += lesson.essay_count || 0;

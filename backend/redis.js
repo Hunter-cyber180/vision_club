@@ -1,22 +1,6 @@
 const Redis = require("ioredis");
 const configs = require("./configs");
 
-// دو حالت پشتیبانی می‌شه:
-// 1) REDIS_URI کامل (مثلاً سرویس‌های ابری مثل Upstash/Redis Cloud):
-//    REDIS_URI=redis://default:password@host:port
-// 2) یا REDIS_HOST / REDIS_PORT / REDIS_PASSWORD جدا جدا در .env
-//
-// اگه هیچ‌کدوم در دسترس نبود (مثلاً روی لوکال Redis نصب نشده)، به‌جای
-// کرش یا هنگ‌کردن کل اپ، به یک fallback حافظه‌ای (in-memory) سوییچ می‌کنه.
-//
-// نکته‌ی مهم: این تصمیم («واقعی یا حافظه‌ای؟») فقط یک‌بار، در همون لحظه‌ی
-// بالا اومدن سرور (قبل از اینکه هیچ ریکوئستی جواب داده بشه) گرفته می‌شه —
-// نه به‌ازای هر ریکوئست. اگه این تصمیم وسط کار عوض بشه (مثلاً یک ریکوئست
-// زودتر از وصل‌شدن Redis برسه و توی حافظه ذخیره بشه، ولی ریکوئست بعدی که
-// Redis وصل شده رفته سراغ Redis واقعی)، توکنی که توی حافظه ذخیره شده بود
-// اصلاً پیدا نمی‌شه و کاربر همون لحظه از سشنش پرت می‌شه بیرون — دقیقاً
-// همون باگی که با نسخه‌ی قبلی این فایل (سوییچ per-request) پیش میومد.
-
 class MemoryStore {
   constructor() {
     this.store = new Map(); // key -> { value, expiresAt }
@@ -48,15 +32,9 @@ function buildIoredisClient() {
 
 let resolvedClient = null; // بعد از init، همیشه همینه — دیگه هیچ‌وقت عوض نمی‌شه
 
-/**
- * باید فقط یک‌بار، موقع بالا اومدن سرور (قبل از server.listen) صدا زده بشه
- * و await بشه. تا این تموم نشه، هیچ ریکوئستی نباید جواب داده بشه — همین
- * چیزیه که جلوی race condition بین دو نوع storage رو می‌گیره.
- */
 async function initRedis() {
   const candidate = buildIoredisClient();
-  candidate.on("error", () => {}); // از throw نشدن خطاهای بعد از init جلوگیری می‌کنه؛ لاگ جدا می‌گیریم
-
+  candidate.on("error", () => {});
   try {
     await candidate.connect();
     await candidate.ping();
@@ -77,7 +55,6 @@ async function initRedis() {
   return resolvedClient;
 }
 
-/** بعد از initRedis، همه‌جای پروژه از همین استفاده می‌کنن (get/set/del) */
 const client = {
   async get(key) {
     return resolvedClient.get(key);

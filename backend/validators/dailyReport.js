@@ -6,8 +6,6 @@ const dailyReportSchema = yup.object().shape({
     wake_time: yup.string().required("تایم بیداری الزامی است"),
     screen_time: yup.string().nullable(),
     weak_points: yup.string().nullable().max(1000),
-    // توجه: ستون واقعی این فیلد در دیتابیس TEXT هست (نه boolean) — همون متنِ
-    // «چیزهایی که نیاز به کمک مشاور دارم» که دانش‌آموز توی فرم می‌نویسه.
     need_help: yup.string().nullable().max(1000),
     lessons: yup.array().of(
         yup.object().shape({

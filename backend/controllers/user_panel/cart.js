@@ -2,9 +2,6 @@ const {
     CartItem, Course, Workshop, UserCourses, UserWorkshops, Consultant, Category,
 } = require("../../models");
 
-// چون سبد خرید بین دو جدول کاملاً جدا (دوره/کارگاه) چندریخته، برای هر آیتم
-// سبد، از جدول درستش اطلاعات نمایش (عنوان/قیمت/تصویر) رو واکشی می‌کنیم و
-// یک شکل یکسان برمی‌گردونیم تا فرانت مجبور نباشه دو مدل مختلف رو جدا مدیریت کنه.
 async function serializeCartItems(items, user) {
     const courseIds = items.filter((i) => i.item_type === "course").map((i) => i.item_id);
     const workshopIds = items.filter((i) => i.item_type === "workshop").map((i) => i.item_id);
@@ -20,13 +17,12 @@ async function serializeCartItems(items, user) {
     const courseMap = new Map(courses.map((c) => [c.id, c]));
     const workshopMap = new Map(workshops.map((w) => [w.id, w]));
 
-    // دانش‌آموزها (role=student) همه‌جا رایگان دسترسی دارن؛ فقط کاربر عادی پول می‌ده.
     const isFreeForRole = user.role === "student";
 
     return items
         .map((item) => {
             const product = item.item_type === "course" ? courseMap.get(item.item_id) : workshopMap.get(item.item_id);
-            if (!product) return null; // دوره/کارگاه حذف شده — نادیده گرفته می‌شه
+            if (!product) return null;
             const rawPrice = product.price || 0;
             const effectivePrice = isFreeForRole ? 0 : rawPrice;
             return {
@@ -45,7 +41,6 @@ async function serializeCartItems(items, user) {
         .filter(Boolean);
 }
 
-// GET /user-panel/cart -> لیست آیتم‌های سبد خرید + جمع کل
 exports.getCart = async (request, response) => {
     try {
         const user = request.user;
@@ -59,7 +54,6 @@ exports.getCart = async (request, response) => {
     }
 };
 
-// POST /user-panel/cart -> افزودن یک دوره/کارگاه به سبد خرید
 exports.addToCart = async (request, response) => {
     try {
         const user = request.user;
@@ -93,7 +87,6 @@ exports.addToCart = async (request, response) => {
     }
 };
 
-// DELETE /user-panel/cart/:id -> حذف یک آیتم از سبد خرید (id = شناسه‌ی ردیف cart_items)
 exports.removeFromCart = async (request, response) => {
     try {
         const user = request.user;
@@ -109,7 +102,6 @@ exports.removeFromCart = async (request, response) => {
     }
 };
 
-// POST /user-panel/cart/checkout -> پرداخت کل سبد خرید از کیف پول و ثبت‌نام در همه‌ی آیتم‌ها
 exports.checkout = async (request, response) => {
     try {
         const user = request.user;
@@ -119,7 +111,6 @@ exports.checkout = async (request, response) => {
 
         const serialized = await serializeCartItems(items, user);
         if (!serialized.length) {
-            // همه‌ی آیتم‌ها حذف شده بودن — سبد رو پاک می‌کنیم که دیگه گیر نکنه
             await CartItem.destroy({ where: { user_id: user.id } });
             return response.status(400).json({ success: false, message: "دوره/کارگاه‌های داخل سبدت دیگه در دسترس نیستن." });
         }
@@ -138,7 +129,7 @@ exports.checkout = async (request, response) => {
                 if (existing) continue;
                 const course = await Course.findByPk(entry.item_id, { include: [{ association: "lessons" }] });
                 const firstLesson = (course?.lessons || [])[0];
-                if (!firstLesson) continue; // دوره‌ی بدون درس رو نمی‌شه ثبت‌نام کرد
+                if (!firstLesson) continue;
                 await UserCourses.create({ user_id: user.id, course_id: entry.item_id, last_lesson_id: firstLesson.id, status: "in-progress" });
             } else {
                 const existing = await UserWorkshops.findOne({ where: { user_id: user.id, workshop_id: entry.item_id } });

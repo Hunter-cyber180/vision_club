@@ -8,7 +8,6 @@ function authorName(request) {
     return "ادمین";
 }
 
-// مشاور فقط روی گزارش/تحلیل دانش‌آموزهای خودش می‌تونه بازخورد بده؛ ادمین روی همه.
 async function canAccessStudent(request, studentId) {
     if (request.role === "admin") return true;
     const student = await User.findByPk(studentId);
@@ -52,7 +51,6 @@ exports.create = async (request, response) => {
     }
 };
 
-// PUT /feedbacks/:id  { text } — فقط نویسنده‌ی بازخورد
 exports.update = async (request, response) => {
     try {
         const feedback = await ReportFeedback.findByPk(request.params.id);
@@ -74,7 +72,6 @@ exports.update = async (request, response) => {
     }
 };
 
-// DELETE /feedbacks/:id — نویسنده یا ادمین
 exports.remove = async (request, response) => {
     try {
         const feedback = await ReportFeedback.findByPk(request.params.id);

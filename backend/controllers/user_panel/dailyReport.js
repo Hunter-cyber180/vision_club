@@ -29,10 +29,6 @@ exports.create = async (request, response) => {
       });
 
       if (Array.isArray(lessons) && lessons.length > 0) {
-        // ستون activity_type توی دیتابیس ENUM با NOT NULL هست؛ اگه فرانت به هر
-        // دلیلی مقدار نامعتبر یا خالی بفرسته (مثلاً هیچ گزینه‌ای انتخاب نشده)،
-        // به‌جای اینکه کل درخواست با خطای دیتابیس ۵۰۰ بشه، یک مقدار پیش‌فرض
-        // معتبر ("not_done") جایگزینش می‌کنیم.
         await DailyReportLesson.bulkCreate(
           lessons
             .filter((l) => l && l.subject)
@@ -47,14 +43,12 @@ exports.create = async (request, response) => {
         );
       }
 
-      // اگر برای همین تاریخ رکورد "گزارش نفرستاده" ثبت شده بود، حل‌شده علامت بزن
       const reportDateOnly = new Date(report_date).toISOString().slice(0, 10);
       await MissedDailyReport.update(
         { is_resolved: true, resolved_at: new Date() },
         { where: { user_id: user.id, report_date: reportDateOnly, is_resolved: false } }
       );
 
-      // دریافت گزارش به همراه دروس برای بازگشت
       const createdReport = await DailyReport.findByPk(report.id, {
         include: [{
           model: DailyReportLesson,
@@ -76,7 +70,6 @@ exports.create = async (request, response) => {
     }
 }
 
-// GET /user-panel/daily-reports/mine -> گزارش‌های کار خود دانش‌آموز
 exports.getMine = async (request, response) => {
     try {
       const user = request.user;
@@ -113,7 +106,6 @@ exports.getAllByUser = async (request, response) => {
       const { user_id } = request.params
       const { startDate, endDate } = request.query;
 
-      // ساخت شرط فیلتر تاریخ
       let dateFilter = {};
       if (startDate && endDate) {
         dateFilter = {
@@ -209,7 +201,6 @@ exports.update = async (request, response) => {
           message: "Report not found!"
         });
 
-      // بررسی دسترسی فقط ادمین بتونه فرم رو اپدیت کنه
       // if (report.user_id !== req.user.id) {
       //   return res.status(403).json({
       //     success: false,
@@ -256,7 +247,6 @@ exports.delete = async (request, response) => {
           message: "report not found!"
         });
 
-      // بررسی دسترسی فقط ادمین
       // if (report.user_id !== req.user.id) {
       //   return res.status(403).json({
       //     success: false,

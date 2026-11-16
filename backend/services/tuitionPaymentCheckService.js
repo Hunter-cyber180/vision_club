@@ -3,25 +3,10 @@ const moment = require("moment-jalaali");
 const { User, TuitionPayment } = require("../models");
 
 class TuitionPaymentCheckService {
-    /**
-     * برای «ماه شمسی جاری»، وضعیت شهریه‌ی همه‌ی دانش‌آموزهایی که به یک
-     * مشاور متصل هستن رو بررسی می‌کنه:
-     *   - اگر دانش‌آموزی برای این ماه اصلاً رکورد شهریه نداره (مثلاً همین
-     *     امروز به یک مشاور وصل شده)، یک رکورد "unpaid" براش می‌سازه تا
-     *     از همون لحظه در لیست «پرداخت‌نشده‌ها»ی مشاور دیده بشه.
-     *   - برای رکوردهایی که از قبل هست (چه paid چه unpaid) کاری نمی‌کنه —
-     *     چون تغییر وضعیت به paid فقط با پرداخت واقعی (درگاه) یا ثبت دستی
-     *     مشاور/ادمین اتفاق می‌افته، نه با این چک خودکار.
-     *
-     * این تابع هر ۳۰ دقیقه یک‌بار توسط cron صدا زده می‌شه (پیکربندی:
-     * configs.cron.tuitionPaymentCheck) تا در طول ماه، وضعیت پرداخت‌ها
-     * همیشه به‌روز و قابل‌مشاهده برای مشاور/ادمین باشه؛ مشابه همون الگویی
-     * که برای چک گزارش‌کار روزانه و تحلیل آزمون استفاده شده.
-     */
     static async checkCurrentMonthPayments() {
         const now = moment();
         const jalaliYear = now.jYear();
-        const jalaliMonth = now.jMonth() + 1; // moment-jalaali از 0 شروع می‌شه
+        const jalaliMonth = now.jMonth() + 1;
 
         const students = await User.findAll({
             where: { role: "student" },

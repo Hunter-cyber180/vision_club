@@ -2,12 +2,6 @@ const cron = require("node-cron");
 const configs = require("../configs");
 const TuitionPaymentCheckService = require("../services/tuitionPaymentCheckService");
 
-// هر نیم ساعت یک‌بار (پیش‌فرض "*/30 * * * *") وضعیت شهریه‌ی ماه جاری همه‌ی
-// دانش‌آموزها بررسی می‌شه: اگر دانش‌آموزی برای این ماه هنوز رکوردی نداره
-// (مثلاً تازه به یک مشاور وصل شده) یک رکورد "unpaid" براش ساخته می‌شه تا
-// بلافاصله در لیست «پرداخت‌نشده‌ها»ی پنل مشاور دیده بشه. این کار مکمل جاب
-// روزانه‌ی tuitionPaymentJob هست (که سر شب یک‌بار همین کار رو برای کل
-// دانش‌آموزها انجام می‌ده)، ولی این یکی هر نیم ساعت طول ماه رو تازه نگه می‌داره.
 const schedule = configs.cron.tuitionPaymentCheck;
 
 if (!cron.validate(schedule)) {

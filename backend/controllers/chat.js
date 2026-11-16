@@ -1,10 +1,6 @@
 const { Conversation, Message, User, Consultant, Admin, Op } = require("../models");
 const configs = require("../configs");
 
-// چون Conversation/Message به‌صورت polymorphic (participant_type + participant_id) طراحی شده،
-// این تابع کمکی برای هر پیام/گفتگو اطلاعات نمایشی طرف مقابل (نام و ...) رو برمی‌گردونه.
-// برچسب فارسیِ نقش هر طرف گفتگو — به‌جای اینکه همیشه بنویسیم «پشتیبانی»،
-// دقیقاً نقش واقعی طرف مقابل (ادمین/مشاور/دانش‌آموز/کاربر عادی) نشون داده می‌شه.
 function roleLabel(type, role) {
     if (type === "admin") return "ادمین";
     if (type === "consultant") return "مشاور";
@@ -88,13 +84,11 @@ exports.getMyConversations = async (request, response) => {
     }
 };
 
-// POST /chat/support -> شروع/باز کردن گفتگو با پشتیبانی سایت (برای هر نقشی)
 exports.startSupportChat = async (request, response) => {
     try {
         const myType = request.role;
         const myId = request.user.id;
 
-        // پشتیبانی سایت فقط یک ادمینه؛ اولین (و تنها) ادمین ثبت‌شده به‌عنوان پشتیبان در نظر گرفته می‌شه
         const supportAdmin = await Admin.findOne({ order: [["id", "ASC"]] });
         if (!supportAdmin)
             return response.status(503).json({ success: false, message: "پشتیبانی سایت در حال حاضر در دسترس نیست" });
@@ -153,8 +147,6 @@ exports.getMessages = async (request, response) => {
 
         const offset = (parseInt(page) - 1) * parseInt(limit);
 
-        // پیام‌های حذف‌شده (چه «برای هر دو طرف» چه «فقط برای من») کاملاً از
-        // تاریخچه‌ی گفتگو حذف می‌شن، بدون هیچ placeholder‌ای (نه مثل واتساپ).
         const { rows: allMessages, count } = await Message.findAndCountAll({
             where: { conversation_id: id, is_deleted: false },
             order: [["created_at", "DESC"]],
@@ -164,7 +156,6 @@ exports.getMessages = async (request, response) => {
         const myKey = `${myType}:${myId}`;
         const messages = allMessages.filter((m) => !m.hidden_for.includes(myKey));
 
-        // پیام‌های طرف مقابل رو خوانده‌شده علامت بزن
         await Message.update(
             { is_read: true, read_at: new Date() },
             { where: { conversation_id: id, sender_type: { [Op.ne]: myType }, is_read: false } }
@@ -184,7 +175,6 @@ exports.getMessages = async (request, response) => {
     }
 };
 
-// POST /chat/conversations/:id/messages  { type: "text"|"image", text?, image_url? }
 exports.sendMessage = async (request, response) => {
     try {
         const { id } = request.params;
@@ -222,7 +212,6 @@ exports.sendMessage = async (request, response) => {
             last_message_preview: type === "text" ? text.slice(0, 100) : "📷 تصویر",
         });
 
-        // ارسال real-time به طرف مقابل از طریق Socket.io (اگه سرور راه‌اندازی شده باشه)
         const io = request.app.get("io");
         if (io) {
             io.to(`conversation:${id}`).emit("newMessage", message);
@@ -240,8 +229,6 @@ exports.sendMessage = async (request, response) => {
     }
 };
 
-// POST /chat/admin-start { participant_type: "user"|"consultant", participant_id }
-// فقط ادمین می‌تونه با هرکسی (هر دانش‌آموز/کاربر یا هر مشاوری) گفتگوی جدید بسازه.
 exports.startConversationAsAdmin = async (request, response) => {
     try {
         if (request.role !== "admin")
@@ -272,7 +259,7 @@ exports.startConversationAsAdmin = async (request, response) => {
                 participant_one_id: admin.id,
                 participant_two_type: participant_type,
                 participant_two_id: participant_id,
-                is_support: true, // از دید کاربر/مشاور، این همون گفتگوی پشتیبانیه
+                is_support: true,
             });
         }
 
@@ -286,10 +273,6 @@ exports.startConversationAsAdmin = async (request, response) => {
     }
 };
 
-// DELETE /chat/messages/:messageId  { scope: "me" | "both" }
-// scope=both: پیام برای هر دو طرف حذف می‌شه (فقط فرستنده‌ی خودِ پیام می‌تونه)
-// scope=me: پیام فقط از دید همین کاربر مخفی می‌شه، طرف مقابل هنوز می‌بینتش
-// (هر عضو گفتگو، حتی گیرنده، می‌تونه این کار رو بکنه)
 exports.deleteMessage = async (request, response) => {
     try {
         const { messageId } = request.params;
@@ -339,7 +322,6 @@ exports.deleteMessage = async (request, response) => {
     }
 };
 
-// PATCH /chat/messages/:messageId  { text } -> فقط فرستنده و فقط پیام‌های متنیِ حذف‌نشده
 exports.editMessage = async (request, response) => {
     try {
         const { messageId } = request.params;
@@ -378,7 +360,6 @@ exports.editMessage = async (request, response) => {
     }
 };
 
-// POST /chat/messages/:messageId/forward  { conversation_id } -> فوروارد یک پیام به گفتگوی دیگر
 exports.forwardMessage = async (request, response) => {
     try {
         const { messageId } = request.params;

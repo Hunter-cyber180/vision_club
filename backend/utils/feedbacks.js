@@ -1,7 +1,5 @@
 const { ReportFeedback } = require("../models");
 
-// به هر گزارش کار / تحلیل آزمون، آرایه‌ی `feedbacks` (قدیمی‌ترین اول) رو اضافه می‌کنه.
-// items: آرایه‌ای از رکوردهای سکوئلایز (یا آبجکت ساده)، type: "daily_report" | "analysis_exam"
 exports.attachFeedbacks = async (items, type) => {
     const plain = (items || []).map((i) => (typeof i.toJSON === "function" ? i.toJSON() : i));
     if (!plain.length) return plain;

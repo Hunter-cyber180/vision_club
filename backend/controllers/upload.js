@@ -2,7 +2,6 @@ const fs = require("fs");
 const { CATEGORY_CONFIG } = require("../middlewares/upload");
 const configs = require("../configs");
 
-// POST /uploads/:category  (multipart/form-data, field name: "file")
 exports.uploadFile = async (request, response) => {
     try {
         if (!request.file) {
@@ -21,10 +20,6 @@ exports.uploadFile = async (request, response) => {
             });
         }
 
-        // فرم افزودن/ویرایش کارگاه، آدرس ویدیو/تصویر رو با yup().url() اعتبارسنجی
-        // می‌کنه که فقط URL مطلق (با http/https) رو قبول می‌کنه؛ یه مسیر نسبی مثل
-        // "/uploads/videos/x.mp4" رد می‌شه و پیام "آدرس ویدیو نامعتبر است" می‌ده.
-        // برای همین همیشه URL کامل (با دامنه‌ی بک‌اند) برمی‌گردونیم.
         const base = configs.backendBaseUrl || `${request.protocol}://${request.get("host")}`;
         const publicUrl = `${base}/uploads/${cfg.dir}/${request.file.filename}`;
 

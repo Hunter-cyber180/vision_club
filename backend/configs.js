@@ -5,8 +5,7 @@ module.exports = {
   isProduction: process.env.NODE_ENV === "production",
   port: parseInt(process.env.PORT) || 8080,
   domain: process.env.DOMAIN,
-  // آدرس کامل بک‌اند برای ساخت URL مطلق فایل‌های آپلودی (ویدیو/عکس و ...).
-  // اگه ست نشه، از روی همون درخواست وارده (پروتکل + host) ساخته می‌شه.
+
   backendBaseUrl: process.env.BACKEND_BASE_URL || null,
 
   db: {
@@ -48,7 +47,6 @@ module.exports = {
     analysisExamCheck: process.env.ANALYSIS_EXAM_CHECK_CRON || "*/30 * * * *",
   },
 
-  // پشتیبانی سایت فقط یک نفره؛ این اطلاعات برای همه‌ی نقش‌ها (کاربر/دانش‌آموز/مشاور/ادمین) یکسانه
   support: {
     phoneNumber: process.env.SUPPORT_PHONE_NUMBER || "09165613709",
     name: process.env.SUPPORT_NAME || "پشتیبانی ویژن آکادمی",

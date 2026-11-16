@@ -5,8 +5,6 @@ const { authenticateAccessToken } = require("../middlewares/auth");
 
 const router = express.Router();
 
-// هر سه نقش (دانش‌آموز، مشاور، ادمین) اجازه‌ی آپلود دارن — محدودیت واقعی
-// (اینکه کدوم فرم کدوم دسته‌فایل رو قبول می‌کنه) سمت فرانت اعمال می‌شه.
 router.post(
     "/:category",
     authenticateAccessToken("user", "consultant", "admin"),

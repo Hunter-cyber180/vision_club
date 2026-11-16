@@ -1,7 +1,6 @@
 const { attachFeedbacks } = require("../../utils/feedbacks");
 const { AnalysisExam, AnalysisExamLesson, MissedAnalysisExam, ExamSchedule, User, Op } = require("../../models");
 
-// دانش‌آموز فرم تحلیل آزمون رو ثبت می‌کنه (همراه با ریز نمرات دروس - اختیاری)
 exports.create = async (request, response) => {
     try {
         const user = request.user; // authenticateAccessToken("user")
@@ -14,7 +13,7 @@ exports.create = async (request, response) => {
             weak_points,
             notes,
             exam_schedule_id,
-            lessons // آرایه‌ی اختیاری: [{ subject, test_count, correct_count, wrong_minutes }]
+            lessons
         } = request.body;
 
         if (!name || !organizer || !test_date)
@@ -48,8 +47,6 @@ exports.create = async (request, response) => {
             );
         }
 
-        // اگر این فرم مربوط به یک آزمون ماهانه‌ی تعیین‌شده توسط ادمین بود،
-        // رکورد "فراموش‌شده" (در صورت وجود) رو resolve کن
         if (exam_schedule_id) {
             await MissedAnalysisExam.update(
                 { is_resolved: true, resolved_at: new Date() },

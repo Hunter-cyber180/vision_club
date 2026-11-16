@@ -3,14 +3,6 @@ const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
 
-/* ============================================================
-   سیستم آپلود فایل — یک endpoint عمومی (POST /uploads/:category)
-   که بسته به دسته‌ی فایل (image/video/document/archive)، فرمت و
-   حجم مجاز رو چک می‌کنه و فایل رو زیر public/uploads/<dir> ذخیره
-   می‌کنه. چون public از قبل با express.static سرو می‌شه، فایل بعد
-   از آپلود بلافاصله از مسیر /uploads/<dir>/<filename> در دسترسه.
-   ============================================================ */
-
 const CATEGORY_CONFIG = {
     image: {
         dir: "images",
@@ -58,7 +50,6 @@ const CATEGORY_CONFIG = {
 
 const UPLOAD_ROOT = path.resolve(__dirname, "../public/uploads");
 
-// از قبل مطمئن می‌شیم پوشه‌ی هر دسته وجود داره (وگرنه اولین آپلود با ENOENT شکست می‌خوره)
 Object.values(CATEGORY_CONFIG).forEach((cfg) => {
     fs.mkdirSync(path.join(UPLOAD_ROOT, cfg.dir), { recursive: true });
 });
@@ -96,8 +87,6 @@ function fileFilter(request, file, cb) {
     cb(null, true);
 }
 
-// چون سقف حجم بین دسته‌ها فرق داره (ویدیو خیلی بزرگ‌تر از عکسه)، محدودیت اولیه‌ی
-// multer روی بزرگ‌ترین سقف ممکنه؛ چک دقیق‌تر بر اساس دسته‌ی واقعی، توی کنترلر انجام می‌شه.
 const MAX_POSSIBLE_MB = Math.max(...Object.values(CATEGORY_CONFIG).map((c) => c.maxSizeMb));
 
 const upload = multer({

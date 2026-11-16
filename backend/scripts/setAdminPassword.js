@@ -1,15 +1,11 @@
 /**
- * استفاده:
+ * usage:
  *   node scripts/setAdminPassword.js <email> <password>
  *
- * مثال:
+ * example:
  *   node scripts/setAdminPassword.js admin@visionacademy.ir MySecurePass123
- *
- * این اسکریپت مستقیم توی دیتابیس، یک ادمین با همین ایمیل/رمز عبور می‌سازه
- * (یا اگه از قبل با همین ایمیل وجود داشت، فقط رمزش رو عوض می‌کنه) — کاملاً
- * جدا از هر مقداری که توی .env هست، پس هیچ ابهامی توی اینکه "دقیقاً رمز
- * واقعی چیه" باقی نمی‌مونه: همینی که همین الان بهش دادی.
  */
+
 require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const { sequelize, Admin } = require("../models");

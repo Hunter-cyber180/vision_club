@@ -9,9 +9,6 @@ class Course extends Model {
             consultant_id: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true },
             thumbnail_url: { type: DataTypes.STRING(500), allowNull: true },
             status: { type: DataTypes.ENUM("in-progress", "finished"), defaultValue: "in-progress", allowNull: false },
-            // وضعیت تاییدِ ادمین: کلاسی که مشاور می‌سازه اول pending می‌مونه و
-            // توی سایت عمومی نشون داده نمی‌شه تا ادمین تاییدش کنه. کلاسی که خودِ
-            // ادمین می‌سازه، چون نیازی به تایید خودش نداره، مستقیم approved می‌شه.
             approval_status: { type: DataTypes.ENUM("pending", "approved", "rejected"), defaultValue: "pending", allowNull: false },
             grade: { type: DataTypes.ENUM("10th", "11th", "12th"), allowNull: false },
             major: { type: DataTypes.ENUM("math", "experimental", "humanities"), allowNull: false },

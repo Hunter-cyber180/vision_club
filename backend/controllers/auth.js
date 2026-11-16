@@ -10,8 +10,6 @@ const {
   setRefreshTokenCookie,
 } = require("../helpers/storeRefreshToken");
 
-// توجه: این ROLE مربوط به «نوع جدول/حساب» برای JWT است (user/consultant/admin)
-// و ربطی به فیلد user.role (که مقدار "user" یا "student" می‌گیرد و پنل را مشخص می‌کند) ندارد.
 const ROLE = "user";
 
 exports.register = async (request, response, next) => {
@@ -56,9 +54,6 @@ exports.register = async (request, response, next) => {
 
     const hashedPassword = await bcrypt.hash(user_password, 10);
 
-    // هر کاربری که تازه ثبت‌نام می‌کند role اش "user" است.
-    // فقط وقتی مشاوری او را به لیست دانش‌آموزانش اضافه کند، role به "student" تغییر می‌کند
-    // و پنل دانش‌آموزی برایش باز می‌شود.
     const user = await User.create({
       name,
       lastname,
@@ -179,8 +174,6 @@ exports.logout = async (request, response, next) => {
   }
 };
 
-// GET /auth/me -> فرانت با این اندپوینت متوجه می‌شود کدام پنل را نشان دهد
-// (role === "user" -> پنل کاربر عادی, role === "student" -> پنل دانش‌آموزی)
 exports.me = async (request, response, next) => {
   try {
     const { Consultant } = require("../models");

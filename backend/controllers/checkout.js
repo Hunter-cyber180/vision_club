@@ -2,9 +2,6 @@ const { Checkout, Charge, User } = require("../models");
 const { createPayment, verifyPayment } = require("../services/zarinpal");
 const configs = require("../configs");
 
-// بعد از پرداخت (موفق یا ناموفق)، کاربر رو به صفحه‌ی کیف پول در پنل ریکت با یک
-// پارامتر وضعیت برمی‌گردونیم؛ به‌جای اینکه فقط یک JSON خام جلوی چشمش بیاد.
-// توجه: فرانت با react-router (مسیر واقعی /panel/wallet) کار می‌کنه، نه هش (#wallet).
 const FRONTEND_WALLET_URL = `${configs.domain || "http://localhost:5173"}/panel/wallet`;
 function redirectToWallet(response, status, message){
   const qs = new URLSearchParams({ payment: status, message: message || "" }).toString();

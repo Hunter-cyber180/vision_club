@@ -2,7 +2,6 @@ const bcrypt = require("bcryptjs");
 const redis = require("../redis");
 const configs = require("../configs");
 
-// کلید ردیس رو با role namespace می‌کنیم تا id تکراری بین جدول‌های مختلف تداخل نکنه
 exports.storeRefreshToken = async function (id, role, refreshToken) {
   const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
   await redis.set(
@@ -33,8 +32,6 @@ exports.setRefreshTokenCookie = function (response, refreshToken) {
   });
 };
 
-// httpOnly session cookie برای ادمین
-// عمداً maxAge/expires ست نشده => "session cookie" که با بسته‌شدن کامل مرورگر پاک می‌شه
 exports.setAdminAccessTokenCookie = function (response, accessToken) {
   response.cookie("adminAccessToken", accessToken, {
     httpOnly: true,

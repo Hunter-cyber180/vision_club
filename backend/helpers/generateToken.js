@@ -6,7 +6,7 @@ const configs = require("../configs");
  * @param {"user"|"consultant"|"admin"} role
  * @param {object} [options]
  * @param {boolean} [options.withRefresh=true] - false باشه => refreshToken ساخته نمی‌شه (برای ادمین)
- * @param {string} [options.accessExpiresIn] - اگه بدی، مدت اعتبار پیش‌فرض accessToken رو override می‌کنه
+ * @param {string} [options.accessExpiresIn]
  */
 exports.generateTokens = function (id, role, options = {}) {
   const { withRefresh = true, accessExpiresIn } = options;

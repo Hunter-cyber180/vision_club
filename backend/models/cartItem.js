@@ -1,9 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
 
-// سبد خرید کاربر — چون دوره و کارگاه دو جدول کاملاً جدا هستن (نه یک جدول
-// مشترک "محصول")، هر آیتم سبد خرید نوعش (course/workshop) رو مشخص می‌کنه و
-// item_id به رکورد همون جدول اشاره می‌کنه. برای نمایش اطلاعات (عنوان، قیمت،
-// تصویر) توی کنترلر جداگانه از روی این نوع، از جدول درست واکشی می‌شه.
 class CartItem extends Model {
     static init(sequelize) {
         return super.init({

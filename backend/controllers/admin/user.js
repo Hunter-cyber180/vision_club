@@ -2,10 +2,6 @@ const { User, Consultant, DailyReport, AnalysisExam, ExamSchedule, TuitionPaymen
 const { Op } = require("sequelize");
 const bcrypt = require("bcryptjs");
 
-// برای هر دانش‌آموز (role=student) توی لیست، اینکه واقعاً «امروز» گزارش کار
-// فرستاده و برای آخرین آزمون جامع واقعاً تحلیل فرستاده رو مستقیم از جدول‌های
-// واقعی چک می‌کنه — دقیقاً همون منطقی که در پنل مشاور (controllers/consultant/user.js)
-// استفاده می‌شه، تا پنل دانش‌آموزان ادمین هم همون رفتار رو داشته باشه.
 async function attachStatusFlags(people) {
     const studentIds = people.filter((p) => p.role === "student").map((p) => p.id);
     if (studentIds.length === 0) return people;
@@ -55,7 +51,6 @@ async function attachStatusFlags(people) {
     });
 }
 
-// لیست همه‌ی کاربران (role=user, هنوز به دانش‌آموزی تبدیل نشده‌اند)
 exports.getAllUsers = async (request, response) => {
     try {
         const { search } = request.query;
@@ -80,8 +75,6 @@ exports.getAllUsers = async (request, response) => {
     }
 };
 
-// لیست همه‌ی کاربران سایت با هر دو نقش (user و student) با هم، یکجا —
-// برای تب یکپارچه‌ی «کاربران» در پنل ادمین (نه دو تب جدا)
 exports.getAllPeople = async (request, response) => {
     try {
         const { search } = request.query;
@@ -113,7 +106,6 @@ exports.getAllPeople = async (request, response) => {
     }
 };
 
-// لیست همه‌ی دانش‌آموزان (role=student)
 exports.getAllStudents = async (request, response) => {
     try {
         const { search, consultant_id } = request.query;
@@ -144,7 +136,6 @@ exports.getAllStudents = async (request, response) => {
     }
 };
 
-// ادمین مستقیم یک دانش‌آموز جدید می‌سازه (همون فیلدهای فرم ثبت‌نام عمومی + انتخاب مشاور)
 exports.createStudent = async (request, response) => {
     try {
         const {
@@ -188,7 +179,6 @@ exports.createStudent = async (request, response) => {
     }
 };
 
-// ادمین دستی role رو تغییر می‌ده (user <-> student) و در صورت لزوم مشاور رو تعیین می‌کنه
 exports.setUserRole = async (request, response) => {
     try {
         const { userId } = request.params;
@@ -211,10 +201,6 @@ exports.setUserRole = async (request, response) => {
 
             await user.update({ role: "student", consultant_id });
         } else {
-            // کاربر عادی نه دانش‌آموزه نه شهریه‌ای داره؛ وقتی از دانش‌آموزی به
-            // کاربر عادی برمی‌گرده، مبلغ شهریه‌ش پاک می‌شه و رکوردهای شهریه‌ی
-            // پرداخت‌نشده‌ش هم حذف می‌شن تا توی لیست "نیازمند پیگیری"/"پرداخت‌نشده"
-            // به‌اشتباه باقی نمونه (سابقه‌ی شهریه‌های پرداخت‌شده برای گزارش مالی نگه داشته می‌شه).
             await user.update({ role: "user", consultant_id: null, tuition_amount: null });
             await TuitionPayment.destroy({ where: { user_id: user.id, status: "unpaid" } });
         }
@@ -233,7 +219,6 @@ exports.setUserRole = async (request, response) => {
     }
 };
 
-// ادمین می‌تونه هر فیلدی از اطلاعات یک کاربر/دانش‌آموز رو ویرایش کنه
 exports.updateUser = async (request, response) => {
     try {
         const { userId } = request.params;
@@ -299,7 +284,6 @@ exports.updateUser = async (request, response) => {
     }
 };
 
-// ادمین یک کاربر/دانش‌آموز رو کاملاً از سیستم حذف می‌کنه (نه فقط تغییر role)
 exports.deleteUser = async (request, response) => {
     try {
         const { userId } = request.params;

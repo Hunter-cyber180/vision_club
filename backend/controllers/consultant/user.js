@@ -16,11 +16,6 @@ function currentJalaliMonthYear() {
     return { jalali_year: m.jYear(), jalali_month: m.jMonth() + 1 };
 }
 
-// مطمئن می‌شه برای «ماه جاری» یک رکورد شهریه برای این دانش‌آموز وجود داره
-// (پیش‌فرض: پرداخت‌نشده) — تا وقتی مشاور مبلغی رو تعیین می‌کنه یا صفحه‌ی
-// جزئیات دانش‌آموز رو باز می‌کنه، بلافاصله وضعیت «پرداخت‌شده/پرداخت‌نشده»
-// این ماه معلوم باشه، نه اینکه تا اولین پرداخت اصلاً هیچ رکوردی نباشه و
-// جایی وضعیتش نوشته نشه.
 async function ensureCurrentTuitionRow(consultantId, userId) {
     const period = currentJalaliMonthYear();
     const [row] = await TuitionPaymentModel.findOrCreate({
@@ -35,18 +30,6 @@ async function ensureCurrentTuitionRow(consultantId, userId) {
     return row;
 }
 
-// برای یک لیست از user id، اینکه واقعاً توی ۲۴ ساعت اخیر گزارش کار فرستاده یا
-// نه، و توی ۲۴ ساعت اخیر تحلیل آزمون فرستاده یا نه رو مستقیم از جدول‌های
-// واقعی چک می‌کنیم — نه از روی «آیا توی لیست نفرستاده‌ها هست یا نه»، چون اون
-// لیست‌ها فقط با یک روز (یا بیشتر) تاخیر توسط cron ساخته می‌شن.
-//
-// نکته‌ی مهم: قبلاً «تحلیل آزمون ارسالی» بر اساس تطابق با آخرین ExamSchedule
-// محاسبه می‌شد (هر تحلیلی که بعد از تاریخ آخرین آزمون ثبت شده بود، برای
-// همیشه «ارسالی» حساب می‌شد، حتی اگه از اون موقع چند روز/هفته گذشته باشه و
-// ادمین هنوز آزمون جدیدی تعریف نکرده باشه) — این باعث می‌شد وضعیت هیچ‌وقت
-// به‌روز نشه. حالا هم گزارش کار و هم تحلیل آزمون بر اساس یک پنجره‌ی متحرک
-// ۲۴ ساعته (نسبت به همین لحظه، نه فقط «امروزِ» تقویمی) چک می‌شن، دقیقاً طبق
-// درخواست: «بررسی هر ۲۴ ساعت یک‌بار رفرش بشه».
 async function computeSubmissionStatus(userIds) {
     const { ExamSchedule } = require("../../models");
     const { Op } = require("sequelize");
@@ -90,7 +73,6 @@ exports.getUsers = async (request, response) => {
         const usersWithStatus = users.map((u) => {
             const plain = u.toJSON();
             plain.reported_today = reportedTodayIds.has(u.id);
-            // اگه اصلاً هنوز آزمونی ثبت نشده، فعلاً معنی نداره که بگیم "نفرستاده"
             plain.analyzed_latest_exam = latestExamSchedule ? analyzedLatestExamIds.has(u.id) : null;
             return plain;
         });
@@ -108,10 +90,6 @@ exports.getUsers = async (request, response) => {
     }
 };
 
-/* جستجوی کاربران عادی (role="user") که هنوز به هیچ مشاوری وصل نشدن — برای
-   دکمه‌ی «افزودن دانش‌آموز جدید». حداقل ۲ کاراکتر عبارت جستجو لازمه (روی
-   نام، نام‌خانوادگی، ایمیل و شماره دانش‌آموزی/تلفن) تا کل جدول کاربران رو
-   با یک درخواست خالی لو نده؛ حداکثر ۱۵ نتیجه برمی‌گرده. */
 exports.searchCandidateUsers = async (request, response) => {
     try {
         const search = (request.query.search || "").trim();
@@ -275,8 +253,6 @@ exports.getUserAnalysisExams = async (request, response) => {
     };
 };
 
-// مشاور مبلغ شهریه‌ی ماهانه‌ی این دانش‌آموز رو تعیین/ویرایش می‌کنه تا دانش‌آموز
-// بتونه بعداً همین مبلغ رو از کیف پول خودش پرداخت کنه.
 exports.setTuitionAmount = async (request, response) => {
     try {
         const { userId } = request.params;
@@ -304,8 +280,6 @@ exports.setTuitionAmount = async (request, response) => {
 
         await user.update({ tuition_amount: Math.round(Number(tuition_amount)) });
 
-        // به محض تعیین/ویرایش مبلغ، اگه برای ماه جاری هنوز رکوردی نیست، یکی
-        // با وضعیت «پرداخت‌نشده» ساخته می‌شه تا بلافاصله در پنل قابل مشاهده باشه.
         const consultantId = request.role === "consultant" ? consultant.id : user.consultant_id;
         if (consultantId) await ensureCurrentTuitionRow(consultantId, user.id);
 
@@ -333,18 +307,11 @@ exports.getUserInformations = async (request, response) => {
                 message: "User not found!"
             });
 
-        // همون محاسبه‌ی زنده‌ی وضعیت گزارش/تحلیل که توی لیست دانش‌آموزها
-        // استفاده می‌شه، اینجا هم اعمال می‌شه تا صفحه‌ی جزئیات دیگه یک
-        // مقدار قدیمی/همیشه‌ثابت نشون نده (باگ قبلی: این فیلدها اصلاً
-        // توی پاسخ این endpoint نبودن).
         const { reportedTodayIds, analyzedLatestExamIds, latestExamSchedule } = await computeSubmissionStatus([user.id]);
         const plain = user.toJSON();
         plain.reported_today = reportedTodayIds.has(user.id);
         plain.analyzed_latest_exam = latestExamSchedule ? analyzedLatestExamIds.has(user.id) : null;
 
-        // وضعیت شهریه‌ی «ماه جاری» رو هم همیشه همراه اطلاعات دانش‌آموز می‌فرستیم
-        // (و اگه رکوردی نبود، می‌سازیمش) تا مشاور دقیقاً ببینه این ماه پرداخت
-        // شده یا نه، نه فقط مبلغ تعیین‌شده.
         if (user.consultant_id) {
             const currentRow = await ensureCurrentTuitionRow(user.consultant_id, user.id);
             plain.current_tuition_status = currentRow.status;
@@ -368,8 +335,6 @@ exports.getUserInformations = async (request, response) => {
     };
 };
 
-// آمار هفته‌ی اخیر یک دانش‌آموز برای سه نمودار پنل مشاور/ادمین (روند تراز،
-// حجم تست/تشریحی، حجم مطالعه‌ی روزانه).
 exports.getUserWeeklyStats = async (request, response) => {
     try {
         const { userId } = request.params;
@@ -418,9 +383,6 @@ exports.getUserTuitionPayments = async (request, response) => {
     };
 };
 
-// وقتی مشاور روی «چت با دانش‌آموز» در لیست دانش‌آموزانش کلیک می‌کند:
-// یک گفتگوی جدید بین مشاور و آن دانش‌آموز ساخته می‌شود (یا اگر قبلاً ساخته شده، همان برگردانده می‌شود)
-// و به لیست چت‌های مشاور اضافه می‌شود.
 exports.startChatWithUser = async (request, response) => {
     try {
         const { userId } = request.params;
@@ -433,7 +395,6 @@ exports.startChatWithUser = async (request, response) => {
                 message: "دانش‌آموز یافت نشد!"
             });
 
-        // مشاور فقط با دانش‌آموزهای خودش می‌تونه گفتگو بسازه، نه با بقیه
         if (user.consultant_id !== consultant.id)
             return response.status(403).json({
                 success: false,

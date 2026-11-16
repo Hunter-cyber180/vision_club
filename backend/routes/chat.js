@@ -6,7 +6,6 @@ const { authenticateAccessToken } = require("../middlewares/auth");
 
 const router = express.Router();
 
-// چت برای هر سه نقش (کاربر/دانش‌آموز، مشاور، ادمین) یکسانه
 router.use(authenticateAccessToken("user", "consultant", "admin"));
 
 router.get("/conversations", controller.getMyConversations);

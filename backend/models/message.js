@@ -13,9 +13,6 @@ class Message extends Model {
             is_deleted: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
             is_edited: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
             edited_at: { type: DataTypes.DATE, allowNull: true },
-            // آرایه‌ای از "type:id" (مثلاً "user:12") که پیام برای اون‌ها با
-            // «حذف فقط برای من» مخفی شده — برخلاف is_deleted که پیام رو برای
-            // هر دو طرف گفتگو حذف می‌کنه.
             hidden_for: {
                 type: DataTypes.TEXT,
                 allowNull: true,

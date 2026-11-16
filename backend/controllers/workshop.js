@@ -3,15 +3,13 @@ const { Op } = require("sequelize");
 
 const getAllWorkshops = async (request, response) => {
     try {
-        // 1. دریافت پارامترهای فیلتر از query string
         const {
             search, category_id, price_type, is_active,
-            consultant_id, // برای پنل «کارگاه‌های من» مشاور — کارگاه‌های خودش با هر وضعیتی
-            approval_status = "approved", // پیش‌فرض فقط تاییدشده‌ها (سایت عمومی)؛ پنل مشاور/ادمین 'all' می‌فرسته
+            consultant_id,
+            approval_status = "approved",
             page = 1, limit = 9, sort = "newest",
         } = request.query;
 
-        // 2. ساخت شرط WHERE
         const whereClause = {};
 
         if (consultant_id)
@@ -20,7 +18,6 @@ const getAllWorkshops = async (request, response) => {
         if (approval_status !== "all")
             whereClause.approval_status = approval_status;
 
-        // فیلتر بر اساس جستجو در title یا description
         if (search) {
             whereClause[Op.or] = [
                 { title: { [Op.like]: `%${search}%` } },
@@ -28,20 +25,17 @@ const getAllWorkshops = async (request, response) => {
             ];
         }
 
-        // فیلتر بر اساس دسته‌بندی
         if (category_id)
             whereClause.category_id = parseInt(category_id);
 
-        // فیلتر بر اساس نوع قیمت (رایگان یا پولی)
         if (price_type) {
             if (price_type === "free") {
-                whereClause.price = 0; // رایگان
+                whereClause.price = 0;
             } else if (price_type === "paid") {
-                whereClause.price = { [Op.gt]: 0 }; // پولی (بزرگتر از ۰)
+                whereClause.price = { [Op.gt]: 0 };
             }
         }
 
-        // فیلتر بر اساس وضعیت فعال بودن (پیش‌فرض فقط فعال‌ها، برای سایت عمومی)
         if (is_active === undefined || is_active === "all") {
             if (is_active === undefined) whereClause.is_active = true;
         } else {
@@ -69,7 +63,7 @@ const getAllWorkshops = async (request, response) => {
                 {
                     model: Category,
                     as: "category",
-                    attributes: ["id", "name", "is_active"] // فقط فیلدهای مورد نیاز
+                    attributes: ["id", "name", "is_active"]
                 },
                 {
                     model: Consultant,
@@ -165,13 +159,8 @@ const createWorkshop = async (request, response) => {
                 message: "دسته‌بندی انتخاب‌شده پیدا نشد."
             });
 
-        // اگه مشاور خودش کارگاه می‌سازه، فقط می‌تونه برای خودش بسازه (consultant_id
-        // از توکن، نه از بدنه) — دقیقاً مثل ساخت دوره؛ ادمین می‌تونه اختیاری یک
-        // مشاور رو به‌عنوان سازنده مشخص کنه.
         const isConsultant = request.role === "consultant";
         const finalConsultantId = isConsultant ? request.user.id : (consultant_id || null);
-        // دقیقاً مثل دوره‌ها: کارگاهی که مشاور می‌سازه تا تایید ادمین pending
-        // می‌مونه (توی سایت عمومی دیده نمی‌شه)؛ کارگاه ادمین مستقیم approved.
         const approval_status = isConsultant ? "pending" : "approved";
 
         const workshop = await Workshop.create({
@@ -197,8 +186,6 @@ const createWorkshop = async (request, response) => {
         });
 
     } catch (error) {
-        // خطاهای اعتبارسنجی سطح دیتابیس (مثلاً یک فیلد NOT NULL خالی مونده) رو
-        // به‌جای پیام مبهم عمومی، دقیقاً همون چیزی که اشتباهه نشون می‌دیم.
         const message = error.name === "SequelizeValidationError"
             ? error.errors.map((e) => e.message).join("، ")
             : "ذخیره‌ی کارگاه با خطا مواجه شد.";
@@ -264,7 +251,6 @@ const updateWorkshop = async (request, response) => {
             ...approvalUpdate,
         });
 
-        // بارگذاری مجدد با ارتباطات
         await workshop.reload({
             include: [
                 {
@@ -303,7 +289,6 @@ const deleteWorkshop = async (request, response) => {
         if (request.role === "consultant" && workshop.consultant_id !== request.user.id)
             return response.status(403).json({ success: false, message: "شما فقط می‌توانید کارگاه‌های خودتان را حذف کنید." });
 
-        // حذف فیزیکی (اگر می‌خواهید نرم‌افزاری باشد، بعداً توضیح می‌دم)
         await workshop.destroy();
 
         response.status(200).json({

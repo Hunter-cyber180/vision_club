@@ -4,7 +4,7 @@ const { authenticateAccessToken } = require("../../middlewares/auth");
 
 const router = express.Router();
 
-router.get("/", controller.getAll); // عمومی: برای فیلتر کارگاه‌ها لازمه
+router.get("/", controller.getAll);
 router.post("/", authenticateAccessToken("admin"), controller.create);
 router.put("/:id", authenticateAccessToken("admin"), controller.update);
 router.delete("/:id", authenticateAccessToken("admin"), controller.remove);
